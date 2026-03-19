@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Playfair_Display, Outfit } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["300", "400", "600"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["200", "300", "400"],
   variable: "--font-body",
   display: "swap",
 });
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "The Mirror",
   description:
     "Tell me what you're carrying. I won't help you. I'll ask you the one question you're not asking yourself.",
-  metadataBase: new URL("https://the-mirror.vercel.app"),
+  metadataBase: new URL("https://the-mirror-eight.vercel.app"),
   openGraph: {
     title: "The Mirror",
     description:
@@ -51,8 +51,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
-      <body className="bg-void text-white antialiased">{children}</body>
+    <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
+      <body className="bg-[#060606] text-white antialiased">{children}</body>
     </html>
   );
 }

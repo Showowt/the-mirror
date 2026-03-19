@@ -3,28 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Outfit", system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
 body {
   min-height: 100vh;
-  background-color: #0a0a0a;
+  background-color: #060606;
   color: #ffffff;
   overflow-x: hidden;
 }
 
 /* Selection styling */
 ::selection {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Scrollbar styling */
@@ -47,8 +48,9 @@ body {
 
 /* Textarea placeholder */
 textarea::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.15);
   font-style: italic;
+  font-family: var(--font-body);
 }
 
 textarea:focus {
@@ -58,67 +60,64 @@ textarea:focus {
 /* Focus visible for accessibility */
 button:focus-visible,
 textarea:focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.3);
+  outline: 1px solid rgba(255, 255, 255, 0.2);
   outline-offset: 2px;
 }
 
-/* Grain overlay */
-.grain-overlay {
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  width: 200%;
-  height: 200%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  animation: grain 8s steps(10) infinite;
-  pointer-events: none;
-  z-index: 1;
+/* Button transitions */
+button {
+  transition: all 0.3s ease;
 }
 
-/* Vignette effect */
-.vignette {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 40%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
-  pointer-events: none;
-  z-index: 2;
+button:hover {
+  opacity: 0.8 !important;
 }
 
-/* Pulse animation for processing */
-.pulse-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 16px;
-  height: 16px;
-  margin-top: -8px;
-  margin-left: -8px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: pulse 2s ease-in-out infinite;
+button:active {
+  transform: scale(0.97);
 }
 
-@keyframes pulse {
-  0% {
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.5;
     transform: scale(1);
-    opacity: 0.4;
   }
   50% {
-    transform: scale(2.5);
-    opacity: 0;
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes pulse1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.25;
   }
   100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse2 {
+  0% {
     transform: scale(1);
-    opacity: 0.4;
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(5);
+    opacity: 0;
   }
 }
 
@@ -130,30 +129,86 @@ textarea:focus-visible {
   10% {
     transform: translate(-5%, -10%);
   }
-  20% {
-    transform: translate(-15%, 5%);
-  }
   30% {
     transform: translate(7%, -25%);
-  }
-  40% {
-    transform: translate(-5%, 25%);
   }
   50% {
     transform: translate(-15%, 10%);
   }
-  60% {
-    transform: translate(15%, 0%);
-  }
   70% {
     transform: translate(0%, 15%);
-  }
-  80% {
-    transform: translate(3%, 35%);
   }
   90% {
     transform: translate(-10%, 10%);
   }
+}
+
+/* Utility classes for animations */
+.animate-spin-slow {
+  animation: spin 30s linear infinite;
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.animate-breathe-slow {
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+.animate-pulse1 {
+  animation: pulse1 2.5s ease-out infinite;
+}
+
+.animate-pulse2 {
+  animation: pulse2 3.2s ease-out infinite;
+  animation-delay: 0.8s;
+}
+
+.animate-grain {
+  animation: grain 6s steps(8) infinite;
+}
+
+/* Grain overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  animation: grain 6s steps(8) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Vignette effect */
+.vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 30%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Center glow */
+.center-glow {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.012) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* Phase transitions */
@@ -169,18 +224,7 @@ textarea:focus-visible {
   opacity: 1;
 }
 
-/* Question reveal */
+/* Question reveal - slower, more dramatic */
 .question-reveal {
-  animation: questionFadeIn 1.5s ease forwards;
-}
-
-@keyframes questionFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  transition: opacity 2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }

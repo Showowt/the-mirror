@@ -4,65 +4,73 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 type Phase = "landing" | "input" | "processing" | "question" | "error";
 
+const SEEING_MESSAGES = [
+  "Reading between your words",
+  "Finding the shape of your perspective",
+  "Looking for what you can't see",
+  "Locating the blind spot",
+];
+
 export default function TheMirror() {
   const [phase, setPhase] = useState<Phase>("landing");
-  const [inputText, setInputText] = useState("");
+  const [text, setText] = useState("");
   const [question, setQuestion] = useState("");
   const [error, setError] = useState("");
   const [visible, setVisible] = useState(false);
   const [questionVisible, setQuestionVisible] = useState(false);
-  const [processingDots, setProcessingDots] = useState("");
+  const [seeingIndex, setSeeingIndex] = useState(0);
+  const [seeingFade, setSeeingFade] = useState(true);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const processingIntervalRef = useRef<number | null>(null);
+  const seeingTimerRef = useRef<number | null>(null);
 
   // Initial fade in
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 100);
+    const timer = setTimeout(() => setVisible(true), 80);
     return () => clearTimeout(timer);
   }, []);
 
-  // Processing dots animation
+  // Cycling "seeing" messages during processing
   useEffect(() => {
-    if (phase === "processing") {
-      let count = 0;
-      processingIntervalRef.current = window.setInterval(() => {
-        count = (count + 1) % 4;
-        setProcessingDots(".".repeat(count));
-      }, 500);
-    } else {
-      if (processingIntervalRef.current) {
-        clearInterval(processingIntervalRef.current);
-        processingIntervalRef.current = null;
+    if (phase !== "processing") {
+      if (seeingTimerRef.current) {
+        clearInterval(seeingTimerRef.current);
+        seeingTimerRef.current = null;
       }
+      return;
     }
+
+    seeingTimerRef.current = window.setInterval(() => {
+      setSeeingFade(false);
+      setTimeout(() => {
+        setSeeingIndex((i) => (i + 1) % SEEING_MESSAGES.length);
+        setSeeingFade(true);
+      }, 400);
+    }, 2800);
+
     return () => {
-      if (processingIntervalRef.current) {
-        clearInterval(processingIntervalRef.current);
+      if (seeingTimerRef.current) {
+        clearInterval(seeingTimerRef.current);
       }
     };
   }, [phase]);
 
-  const transitionTo = useCallback((newPhase: Phase, delay = 600) => {
+  const transitionTo = useCallback((newPhase: Phase, delay = 500) => {
     setVisible(false);
     setTimeout(() => {
       setPhase(newPhase);
-      setTimeout(() => setVisible(true), 50);
+      setTimeout(() => setVisible(true), 60);
+      if (newPhase === "input") {
+        setTimeout(() => textareaRef.current?.focus(), 350);
+      }
     }, delay);
   }, []);
 
-  const handleEnter = () => {
-    transitionTo("input");
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 700);
-  };
-
-  const handleSubmit = async () => {
-    const trimmed = inputText.trim();
+  const handleSubmit = useCallback(async () => {
+    const trimmed = text.trim();
     if (trimmed.length < 20) return;
 
-    transitionTo("processing");
+    transitionTo("processing", 500);
 
     try {
       const response = await fetch("/api/mirror", {
@@ -81,30 +89,27 @@ export default function TheMirror() {
       setVisible(false);
       setTimeout(() => {
         setPhase("question");
-        setTimeout(() => setQuestionVisible(true), 100);
-      }, 800);
+        setTimeout(() => setQuestionVisible(true), 120);
+      }, 700);
     } catch (err) {
       console.error(err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Something broke in the reflection. Try again.",
+        err instanceof Error ? err.message : "The reflection broke. Try again.",
       );
-      transitionTo("error");
+      transitionTo("error", 400);
     }
-  };
+  }, [text, transitionTo]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setQuestionVisible(false);
-    setVisible(false);
     setTimeout(() => {
-      setPhase("landing");
-      setInputText("");
+      setText("");
       setQuestion("");
       setError("");
-      setTimeout(() => setVisible(true), 50);
-    }, 600);
-  };
+      setSeeingIndex(0);
+      transitionTo("landing", 400);
+    }, 500);
+  }, [transitionTo]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -113,145 +118,193 @@ export default function TheMirror() {
     }
   };
 
-  const charCount = inputText.length;
-  const canSubmit = inputText.trim().length >= 20;
+  const canSubmit = text.trim().length >= 20;
 
   return (
-    <main className="min-h-screen w-full bg-void flex items-center justify-center relative overflow-hidden">
+    <main className="min-h-screen w-full bg-[#060606] flex items-center justify-center relative overflow-hidden font-body">
       {/* Grain overlay */}
       <div className="grain-overlay" />
 
       {/* Vignette */}
       <div className="vignette" />
 
-      {/* Content */}
-      <div
-        className={`relative z-10 flex flex-col items-center justify-center px-6 py-10 max-w-2xl w-full text-center phase-transition ${visible ? "phase-visible" : "phase-enter"}`}
-      >
-        {/* LANDING */}
-        {phase === "landing" && (
-          <>
-            <div className="text-5xl text-white/[0.06] font-display font-light mb-8 tracking-widest">
-              ◯
-            </div>
-            <h1 className="font-display text-5xl md:text-7xl font-light text-white tracking-wider mb-8">
-              The Mirror
-            </h1>
-            <p className="font-body text-base md:text-lg font-light text-white/60 leading-relaxed mb-3">
-              Tell me what you&apos;re carrying right now.
-            </p>
-            <p className="font-body text-sm font-light text-white/35 leading-relaxed mb-12">
-              I won&apos;t help you. I&apos;ll ask you the one question
-              <br />
-              you&apos;re not asking yourself.
-            </p>
-            <button
-              onClick={handleEnter}
-              className="bg-transparent border border-white/15 text-white/70 font-display text-base font-normal tracking-[0.15em] px-14 py-4 uppercase transition-all duration-300 hover:border-white/30 hover:text-white/90"
-            >
-              Enter
-            </button>
-          </>
-        )}
+      {/* Center glow */}
+      <div className="center-glow" />
 
-        {/* INPUT */}
-        {phase === "input" && (
-          <>
-            <p className="font-display text-2xl md:text-3xl font-light italic text-white/75 leading-relaxed mb-3">
-              What&apos;s the situation, the decision, the thing on your mind?
-            </p>
-            <p className="font-body text-sm font-light text-white/25 tracking-wide mb-9">
-              Don&apos;t filter. Don&apos;t organize. Just say it.
-            </p>
-            <div className="w-full relative mb-6">
-              <textarea
-                ref={textareaRef}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Start typing..."
-                maxLength={3000}
-                rows={6}
-                className="w-full min-h-[160px] bg-white/[0.03] border border-white/[0.08] text-white/85 font-body text-base font-light leading-relaxed p-5 resize-y tracking-wide transition-colors focus:border-white/15"
-              />
-              {charCount > 0 && (
-                <span className="absolute bottom-3 right-4 text-xs text-white/30 font-body">
-                  {charCount}/3000
-                </span>
-              )}
-            </div>
-            <button
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              className={`bg-transparent border border-white/20 text-white/70 font-display text-sm font-normal tracking-[0.1em] px-10 py-4 uppercase transition-all duration-400 ${
-                canSubmit
-                  ? "opacity-100 cursor-pointer hover:border-white/40 hover:text-white"
-                  : "opacity-20 cursor-default"
-              }`}
-            >
-              Show me what I can&apos;t see
-            </button>
-            <p className="font-body text-xs font-light text-white/25 mt-4 h-4">
-              {!canSubmit && charCount > 0 ? "Say a little more..." : "\u00A0"}
-            </p>
-          </>
-        )}
-
-        {/* PROCESSING */}
-        {phase === "processing" && (
-          <div className="flex flex-col items-center gap-8">
-            <div className="w-4 h-4 rounded-full bg-white/15 relative">
-              <div className="pulse-ring" />
-            </div>
-            <p className="font-body text-sm font-light text-white/30 tracking-[0.2em] lowercase min-w-[80px]">
-              Seeing{processingDots}
-            </p>
+      {/* LANDING */}
+      {phase === "landing" && (
+        <div
+          className="relative z-10 flex flex-col items-center justify-center text-center px-7 py-10 max-w-[620px] w-full"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 1s ease",
+          }}
+        >
+          {/* Spinning ring with breathing dot */}
+          <div className="w-16 h-16 rounded-full border border-white/[0.06] flex items-center justify-center mb-9 animate-spin-slow">
+            <div className="w-1.5 h-1.5 rounded-full bg-white/25 animate-breathe" />
           </div>
-        )}
 
-        {/* QUESTION */}
-        {phase === "question" && (
-          <div
-            className={`flex flex-col items-center phase-transition ${questionVisible ? "phase-visible" : "phase-enter"}`}
-            style={{ transition: "opacity 1.5s ease" }}
+          <h1 className="font-display text-[clamp(48px,10vw,80px)] font-light text-white tracking-[0.04em] leading-none mb-6">
+            The Mirror
+          </h1>
+
+          <div className="w-10 h-px bg-white/[0.12] mb-7" />
+
+          <p className="font-body text-[17px] font-extralight text-white/55 leading-relaxed tracking-[0.015em] mb-2.5">
+            Tell me what you&apos;re carrying right now.
+          </p>
+
+          <p className="font-body text-[13.5px] font-extralight text-white/[0.28] leading-loose mb-12">
+            I won&apos;t help you. I&apos;ll ask you the one question
+            <br />
+            you&apos;re not asking yourself.
+          </p>
+
+          <button
+            onClick={() => transitionTo("input")}
+            className="bg-transparent border border-white/[0.12] text-white/60 font-body text-[13px] font-light tracking-[0.18em] uppercase px-14 py-4"
           >
-            <div className="max-w-xl relative px-5">
-              <div className="font-display text-[120px] font-light text-white/[0.04] leading-none -mb-10 select-none">
-                &ldquo;
-              </div>
-              <p className="font-display text-2xl md:text-4xl font-light italic text-white/90 leading-relaxed tracking-wide">
-                {question}
-              </p>
-            </div>
-            <div className="mt-16 flex items-center gap-6">
-              <button
-                onClick={handleReset}
-                className="bg-transparent border border-white/10 text-white/35 font-body text-xs font-normal tracking-[0.1em] px-7 py-3 uppercase transition-all duration-300 hover:border-white/25 hover:text-white/60"
-              >
-                Start over
-              </button>
-            </div>
-            <p className="font-body text-[11px] font-light text-white/10 mt-12 tracking-[0.15em] uppercase">
-              The Mirror — by MachineMind
+            I&apos;m ready
+          </button>
+        </div>
+      )}
+
+      {/* INPUT */}
+      {phase === "input" && (
+        <div
+          className="relative z-10 flex flex-col items-center justify-center text-center px-7 py-10 max-w-[620px] w-full"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.8s ease",
+          }}
+        >
+          <p className="font-display text-[clamp(20px,4vw,26px)] font-light italic text-white/70 leading-relaxed mb-2.5">
+            What&apos;s the situation, the decision, the thing weighing on you?
+          </p>
+
+          <p className="font-body text-[13px] font-extralight text-white/[0.22] tracking-[0.01em] mb-8">
+            Don&apos;t organize it. Don&apos;t make it make sense. Just say it.
+          </p>
+
+          <div className="w-full relative mb-7">
+            <textarea
+              ref={textareaRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Start typing..."
+              maxLength={3000}
+              rows={7}
+              className="w-full min-h-[180px] bg-white/[0.02] border border-white/[0.06] rounded-[3px] text-white/85 font-body text-[15px] font-extralight leading-loose p-[22px] resize-y tracking-[0.005em] transition-colors duration-500 focus:border-white/[0.12]"
+            />
+            {text.length > 0 && (
+              <span className="absolute bottom-2.5 right-3.5 text-[11px] font-light text-white/15 font-body">
+                {text.length}/3000
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="bg-transparent border border-white/15 text-white/65 font-display text-sm font-normal italic tracking-[0.06em] px-11 py-4"
+            style={{
+              opacity: canSubmit ? 1 : 0.15,
+              cursor: canSubmit ? "pointer" : "default",
+            }}
+          >
+            Show me what I can&apos;t see
+          </button>
+
+          {text.length > 0 && text.trim().length < 20 && (
+            <p className="font-body text-xs font-extralight text-white/20 mt-3.5">
+              Say a little more...
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* PROCESSING */}
+      {phase === "processing" && (
+        <div
+          className="relative z-10 flex flex-col items-center justify-center text-center px-7 py-10"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.7s ease",
+          }}
+        >
+          {/* Pulsing orb */}
+          <div className="relative w-5 h-5 mb-10">
+            <div className="absolute inset-0 rounded-full bg-white/20 animate-breathe-slow" />
+            <div className="absolute top-1/2 left-1/2 w-5 h-5 -mt-2.5 -ml-2.5 rounded-full border border-white/[0.08] animate-pulse1" />
+            <div className="absolute top-1/2 left-1/2 w-5 h-5 -mt-2.5 -ml-2.5 rounded-full border border-white/[0.05] animate-pulse2" />
+          </div>
+
+          <p
+            className="font-body text-[13px] font-extralight text-white/25 tracking-[0.12em] lowercase"
+            style={{
+              opacity: seeingFade ? 1 : 0,
+              transition: "opacity 0.4s ease",
+            }}
+          >
+            {SEEING_MESSAGES[seeingIndex]}
+          </p>
+        </div>
+      )}
+
+      {/* QUESTION */}
+      {phase === "question" && (
+        <div
+          className="relative z-10 flex flex-col items-center justify-center text-center px-7 py-10 question-reveal"
+          style={{
+            opacity: questionVisible ? 1 : 0,
+          }}
+        >
+          <div className="max-w-[540px] relative px-4">
+            <span className="font-display text-[140px] font-light text-white/[0.03] leading-none block -mb-[50px] select-none">
+              &ldquo;
+            </span>
+            <p className="font-display text-[clamp(22px,5vw,34px)] font-light italic text-white/[0.92] leading-relaxed tracking-[0.005em]">
+              {question}
             </p>
           </div>
-        )}
 
-        {/* ERROR */}
-        {phase === "error" && (
-          <>
-            <p className="font-body text-sm font-light text-red-300/60 mb-6">
-              {error}
-            </p>
+          <div className="mt-[60px] flex items-center gap-5">
             <button
               onClick={handleReset}
-              className="bg-transparent border border-white/10 text-white/35 font-body text-xs font-normal tracking-[0.1em] px-7 py-3 uppercase transition-all duration-300 hover:border-white/25 hover:text-white/60"
+              className="bg-transparent border border-white/[0.08] text-white/30 font-body text-[11px] font-light tracking-[0.14em] uppercase px-8 py-2.5"
             >
-              Try again
+              Start over
             </button>
-          </>
-        )}
-      </div>
+          </div>
+
+          <p className="font-body text-[10px] font-extralight text-white/10 mt-[52px] tracking-[0.2em] uppercase">
+            The Mirror&ensp;&mdash;&ensp;MachineMind
+          </p>
+        </div>
+      )}
+
+      {/* ERROR */}
+      {phase === "error" && (
+        <div
+          className="relative z-10 flex flex-col items-center justify-center text-center px-7 py-10"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.7s ease",
+          }}
+        >
+          <p className="font-body text-sm font-extralight text-red-200/50 mb-6">
+            {error}
+          </p>
+          <button
+            onClick={handleReset}
+            className="bg-transparent border border-white/[0.08] text-white/30 font-body text-[11px] font-light tracking-[0.14em] uppercase px-8 py-2.5"
+          >
+            Try again
+          </button>
+        </div>
+      )}
     </main>
   );
 }
