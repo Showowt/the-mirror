@@ -27,21 +27,12 @@ export const metadata: Metadata = {
     description:
       "I won't help you. I'll ask you the one question you're not asking yourself.",
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "The Mirror",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "The Mirror",
     description:
       "I won't help you. I'll ask you the one question you're not asking yourself.",
-    images: ["/og-image.png"],
   },
 };
 
