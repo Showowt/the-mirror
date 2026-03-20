@@ -18,8 +18,9 @@ export const T: Record<Lang, Translations> = {
 
     // Input
     promptL1: "What's the situation, the decision, the thing weighing on you?",
-    promptL1Sub: "Don't organize it. Don't make it make sense. Just say it.",
-    placeholder: "Start typing...",
+    promptL1Sub:
+      "Type it or tap the mic and speak it. Don't filter. Just let it out.",
+    placeholder: "Start typing or tap the mic...",
     submitBtn: "Show me what I can't see",
     sayMore: "Say a little more...",
 
@@ -92,6 +93,11 @@ export const T: Record<Lang, Translations> = {
     crisisText: "If you're in crisis:",
     crisisLine: "988 Suicide & Crisis Lifeline",
     crisisAction: "call or text 988",
+
+    // Voice
+    micListening: "Listening...",
+    micTap: "Tap to speak",
+    voiceNotSupported: "Voice not available in this browser",
   },
   es: {
     // Landing
@@ -105,8 +111,9 @@ export const T: Record<Lang, Translations> = {
 
     // Input
     promptL1: "¿Cuál es la situación, la decisión, lo que te pesa?",
-    promptL1Sub: "No lo organices. No trates de que tenga sentido. Solo dilo.",
-    placeholder: "Empieza a escribir...",
+    promptL1Sub:
+      "Escríbelo o toca el micrófono y dilo. No filtres. Solo déjalo salir.",
+    placeholder: "Escribe o toca el micrófono...",
     submitBtn: "Muéstrame lo que no puedo ver",
     sayMore: "Dime un poco más...",
 
@@ -180,6 +187,11 @@ export const T: Record<Lang, Translations> = {
     crisisText: "Si estás en crisis:",
     crisisLine: "Línea de la Vida",
     crisisAction: "llama al 800-911-2000",
+
+    // Voice
+    micListening: "Escuchando...",
+    micTap: "Toca para hablar",
+    voiceNotSupported: "Voz no disponible en este navegador",
   },
 };
 

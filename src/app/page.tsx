@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { detectCrisis } from "@/lib/prompts";
 import { T, detectLang, formatDate } from "@/lib/i18n";
+import { useVoice } from "@/lib/useVoice";
+import { MicButton } from "@/components/MicButton";
 import type { Phase, MirrorCard, Vault, Lang } from "@/lib/types";
 
 /* ═══════════════════════════════════════════════════════════════
-   THE MIRROR v2 — THE DESCENT — BILINGUAL
+   THE MIRROR v2.1 — THE DESCENT — VOICE + BILINGUAL
 
-   A sacred space for self-reflection.
+   Speak what you're carrying. The Mirror listens.
    AI that doesn't help you — it shows you yourself.
 
    by MachineMind | @showowt | Phil McGill
@@ -37,7 +39,7 @@ async function callMirror(
 function loadVault(): Vault {
   if (typeof window === "undefined") return { cards: [] };
   try {
-    const stored = localStorage.getItem("mirror-vault-v2");
+    const stored = localStorage.getItem("mirror-vault-v3");
     return stored ? JSON.parse(stored) : { cards: [] };
   } catch {
     return { cards: [] };
@@ -47,7 +49,7 @@ function loadVault(): Vault {
 function saveVault(vault: Vault): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem("mirror-vault-v2", JSON.stringify(vault));
+    localStorage.setItem("mirror-vault-v3", JSON.stringify(vault));
   } catch (e) {
     console.error("Storage error:", e);
   }
@@ -63,6 +65,10 @@ export default function MirrorV2() {
   const [text, setText] = useState("");
   const [answerText, setAnswerText] = useState("");
   const [isCrisis, setIsCrisis] = useState(false);
+
+  // Voice interim transcription
+  const [interim, setInterim] = useState("");
+  const [interimAnswer, setInterimAnswer] = useState("");
 
   // Descent state
   const [question1, setQuestion1] = useState("");
@@ -92,6 +98,27 @@ export default function MirrorV2() {
     card: t.procCard,
   };
 
+  // ═══ Voice Recognition Hooks ═══
+  // Voice for main situation input
+  const voice1 = useVoice(
+    lang,
+    useCallback(
+      (final: string) => setText((prev) => (prev + " " + final).trim()),
+      [],
+    ),
+    useCallback((im: string) => setInterim(im), []),
+  );
+
+  // Voice for answer input
+  const voice2 = useVoice(
+    lang,
+    useCallback(
+      (final: string) => setAnswerText((prev) => (prev + " " + final).trim()),
+      [],
+    ),
+    useCallback((im: string) => setInterimAnswer(im), []),
+  );
+
   // ═══ Load vault and detect language on mount ═══
   useEffect(() => {
     setLang(detectLang());
@@ -120,13 +147,21 @@ export default function MirrorV2() {
   }, [phase, procLevel, PHRASES]);
 
   // ═══ Transition helper ═══
-  const goTo = useCallback((next: Phase, d = 600) => {
-    setVis(false);
-    setTimeout(() => {
-      setPhase(next);
-      setTimeout(() => setVis(true), 100);
-    }, d);
-  }, []);
+  const goTo = useCallback(
+    (next: Phase, d = 600) => {
+      // Stop any active voice recognition when transitioning
+      voice1.stop();
+      voice2.stop();
+      setInterim("");
+      setInterimAnswer("");
+      setVis(false);
+      setTimeout(() => {
+        setPhase(next);
+        setTimeout(() => setVis(true), 100);
+      }, d);
+    },
+    [voice1, voice2],
+  );
 
   // ═══ Language toggle ═══
   const toggleLang = useCallback(() => {
@@ -142,6 +177,8 @@ export default function MirrorV2() {
     setQuestion2("");
     setMirrorCard(null);
     setIsCrisis(false);
+    setInterim("");
+    setInterimAnswer("");
     goTo("input");
     setTimeout(() => taRef.current?.focus(), 800);
   }, [goTo]);
@@ -149,6 +186,7 @@ export default function MirrorV2() {
   // ═══ LEVEL 1: Get the first question ═══
   const submitSituation = useCallback(async () => {
     if (text.trim().length < 20) return;
+    voice1.stop();
     const crisis = detectCrisis(text);
     setIsCrisis(crisis);
     setProcLevel("l1");
@@ -163,11 +201,12 @@ export default function MirrorV2() {
     }
     setQuestion1(response.result as string);
     goTo("question", 800);
-  }, [text, goTo, lang]);
+  }, [text, goTo, lang, voice1]);
 
   // ═══ LEVEL 2: User answered, get observation ═══
   const submitAnswer = useCallback(async () => {
     if (answerText.trim().length < 10) return;
+    voice2.stop();
     setProcLevel("l2");
     setPIdx(0);
     setPFade(true);
@@ -185,7 +224,7 @@ export default function MirrorV2() {
     }
     setObservation(response.result as string);
     goTo("observation", 800);
-  }, [answerText, text, question1, goTo, lang]);
+  }, [answerText, text, question1, goTo, lang, voice2]);
 
   // ═══ LEVEL 3: Deeper question ═══
   const goDeeperQuestion = useCallback(async () => {
@@ -482,17 +521,30 @@ export default function MirrorV2() {
             )}
           </div>
 
-          <button
-            onClick={submitSituation}
-            disabled={!canSubmitSituation}
-            className="btn-submit"
-            style={{
-              opacity: canSubmitSituation ? 1 : 0.2,
-              cursor: canSubmitSituation ? "pointer" : "default",
-            }}
-          >
-            {t.submitBtn}
-          </button>
+          {/* Interim transcription */}
+          {interim && <p className="interim-text mb-4">{interim}</p>}
+
+          {/* Input actions: Mic + Submit */}
+          <div className="input-actions">
+            <MicButton
+              listening={voice1.listening}
+              supported={voice1.supported}
+              onToggle={voice1.toggle}
+              label={t.micTap}
+              listenLabel={t.micListening}
+            />
+            <button
+              onClick={submitSituation}
+              disabled={!canSubmitSituation}
+              className="btn-submit"
+              style={{
+                opacity: canSubmitSituation ? 1 : 0.2,
+                cursor: canSubmitSituation ? "pointer" : "default",
+              }}
+            >
+              {t.submitBtn}
+            </button>
+          </div>
 
           {text.length > 0 && !canSubmitSituation && (
             <p className="text-micro text-white/20 mt-4">{t.sayMore}</p>
@@ -579,17 +631,32 @@ export default function MirrorV2() {
             />
           </div>
 
-          <button
-            onClick={submitAnswer}
-            disabled={!canSubmitAnswer}
-            className="btn-submit"
-            style={{
-              opacity: canSubmitAnswer ? 1 : 0.2,
-              cursor: canSubmitAnswer ? "pointer" : "default",
-            }}
-          >
-            {t.goDeeper}
-          </button>
+          {/* Interim transcription */}
+          {interimAnswer && (
+            <p className="interim-text mb-4">{interimAnswer}</p>
+          )}
+
+          {/* Input actions: Mic + Submit */}
+          <div className="input-actions">
+            <MicButton
+              listening={voice2.listening}
+              supported={voice2.supported}
+              onToggle={voice2.toggle}
+              label={t.micTap}
+              listenLabel={t.micListening}
+            />
+            <button
+              onClick={submitAnswer}
+              disabled={!canSubmitAnswer}
+              className="btn-submit"
+              style={{
+                opacity: canSubmitAnswer ? 1 : 0.2,
+                cursor: canSubmitAnswer ? "pointer" : "default",
+              }}
+            >
+              {t.goDeeper}
+            </button>
+          </div>
         </div>
       )}
 

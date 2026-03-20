@@ -112,4 +112,9 @@ export interface Translations {
   crisisText: string;
   crisisLine: string;
   crisisAction: string;
+
+  // Voice
+  micListening: string;
+  micTap: string;
+  voiceNotSupported: string;
 }
