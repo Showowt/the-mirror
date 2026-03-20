@@ -169,6 +169,29 @@ button:active {
   animation: grain 6s steps(8) infinite;
 }
 
+/* Additional keyframes for v2 */
+@keyframes pulse1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse2 {
+  0% {
+    transform: scale(1);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(5);
+    opacity: 0;
+  }
+}
+
 /* Grain overlay */
 .grain-overlay {
   position: fixed;
