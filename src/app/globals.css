@@ -2,9 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════
+   THE MIRROR v2 — IMMACULATE BUILD
+   Cinematic, sacred, otherworldly
+   ═══════════════════════════════════════════════════════════════ */
+
 :root {
   --font-display: "Playfair Display", Georgia, serif;
   --font-body: "Outfit", system-ui, sans-serif;
+  --void: #050505;
+  --void-elevated: #0a0a0a;
+  --white-pure: #ffffff;
+  --white-90: rgba(255, 255, 255, 0.9);
+  --white-70: rgba(255, 255, 255, 0.7);
+  --white-50: rgba(255, 255, 255, 0.5);
+  --white-30: rgba(255, 255, 255, 0.3);
+  --white-20: rgba(255, 255, 255, 0.2);
+  --white-15: rgba(255, 255, 255, 0.15);
+  --white-10: rgba(255, 255, 255, 0.1);
+  --white-08: rgba(255, 255, 255, 0.08);
+  --white-05: rgba(255, 255, 255, 0.05);
+  --white-03: rgba(255, 255, 255, 0.03);
+  --white-02: rgba(255, 255, 255, 0.02);
+  --crisis-red: rgba(255, 180, 180, 0.5);
 }
 
 * {
@@ -15,22 +35,29 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html,
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
-  background-color: #060606;
-  color: #ffffff;
+  min-height: 100dvh;
+  background-color: var(--void);
+  color: var(--white-pure);
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
-/* Selection styling */
+/* ═══ Selection ═══ */
 ::selection {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--white-08);
+  color: var(--white-pure);
 }
 
-/* Scrollbar styling */
+/* ═══ Scrollbar ═══ */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -38,205 +65,248 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: var(--white-08);
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--white-15);
 }
 
-/* Textarea placeholder */
-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.15);
-  font-style: italic;
+/* ═══ Focus States ═══ */
+button:focus-visible,
+textarea:focus-visible {
+  outline: 1px solid var(--white-20);
+  outline-offset: 3px;
+}
+
+/* ═══ Textarea ═══ */
+textarea {
   font-family: var(--font-body);
+}
+
+textarea::placeholder {
+  color: var(--white-15);
+  font-style: italic;
+  font-weight: 200;
 }
 
 textarea:focus {
   outline: none;
 }
 
-/* Focus visible for accessibility */
-button:focus-visible,
-textarea:focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.2);
-  outline-offset: 2px;
-}
-
-/* Button transitions */
+/* ═══ Buttons ═══ */
 button {
-  transition: all 0.3s ease;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  border: none;
+  background: none;
 }
 
 button:hover {
-  opacity: 0.8 !important;
+  opacity: 0.8;
 }
 
 button:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
-/* Animations */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+button:disabled {
+  cursor: default;
 }
 
-@keyframes breathe {
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.15);
-  }
-}
+/* ═══════════════════════════════════════════════════════════════
+   ATMOSPHERIC LAYERS
+   ═══════════════════════════════════════════════════════════════ */
 
-@keyframes pulse1 {
-  0% {
-    transform: scale(1);
-    opacity: 0.25;
-  }
-  100% {
-    transform: scale(3.5);
-    opacity: 0;
-  }
-}
-
-@keyframes pulse2 {
-  0% {
-    transform: scale(1);
-    opacity: 0.15;
-  }
-  100% {
-    transform: scale(5);
-    opacity: 0;
-  }
-}
-
-@keyframes grain {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  10% {
-    transform: translate(-5%, -10%);
-  }
-  30% {
-    transform: translate(7%, -25%);
-  }
-  50% {
-    transform: translate(-15%, 10%);
-  }
-  70% {
-    transform: translate(0%, 15%);
-  }
-  90% {
-    transform: translate(-10%, 10%);
-  }
-}
-
-/* Utility classes for animations */
-.animate-spin-slow {
-  animation: spin 30s linear infinite;
-}
-
-.animate-breathe {
-  animation: breathe 3s ease-in-out infinite;
-}
-
-.animate-breathe-slow {
-  animation: breathe 2.5s ease-in-out infinite;
-}
-
-.animate-pulse1 {
-  animation: pulse1 2.5s ease-out infinite;
-}
-
-.animate-pulse2 {
-  animation: pulse2 3.2s ease-out infinite;
-  animation-delay: 0.8s;
-}
-
-.animate-grain {
-  animation: grain 6s steps(8) infinite;
-}
-
-/* Additional keyframes for v2 */
-@keyframes pulse1 {
-  0% {
-    transform: scale(1);
-    opacity: 0.25;
-  }
-  100% {
-    transform: scale(3.5);
-    opacity: 0;
-  }
-}
-
-@keyframes pulse2 {
-  0% {
-    transform: scale(1);
-    opacity: 0.15;
-  }
-  100% {
-    transform: scale(5);
-    opacity: 0;
-  }
-}
-
-/* Grain overlay */
 .grain-overlay {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-  animation: grain 6s steps(8) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+  animation: grain 8s steps(10) infinite;
   pointer-events: none;
   z-index: 1;
+  opacity: 0.8;
 }
 
-/* Vignette effect */
 .vignette {
   position: fixed;
   inset: 0;
   background: radial-gradient(
-    ellipse at 50% 50%,
-    transparent 30%,
-    rgba(0, 0, 0, 0.7) 100%
+    ellipse 80% 80% at 50% 50%,
+    transparent 20%,
+    rgba(0, 0, 0, 0.4) 60%,
+    rgba(0, 0, 0, 0.8) 100%
   );
   pointer-events: none;
   z-index: 2;
 }
 
-/* Center glow */
 .center-glow {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 600px;
-  height: 600px;
+  width: 800px;
+  height: 800px;
   transform: translate(-50%, -50%);
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 0.012) 0%,
-    transparent 70%
+    rgba(255, 255, 255, 0.008) 0%,
+    transparent 60%
   );
   pointer-events: none;
   z-index: 2;
 }
 
-/* Phase transitions */
-.phase-transition {
-  transition: opacity 0.8s ease;
+/* ═══════════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2%, -5%); }
+  20% { transform: translate(3%, -8%); }
+  30% { transform: translate(-4%, 2%); }
+  40% { transform: translate(5%, 5%); }
+  50% { transform: translate(-3%, -3%); }
+  60% { transform: translate(2%, 6%); }
+  70% { transform: translate(-5%, 1%); }
+  80% { transform: translate(1%, -4%); }
+  90% { transform: translate(-1%, 3%); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes breathe-slow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes pulse-ring-1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ring-2 {
+  0% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(5.5);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+
+.animate-spin-slow {
+  animation: spin 40s linear infinite;
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.animate-breathe-slow {
+  animation: breathe-slow 3s ease-in-out infinite;
+}
+
+.animate-pulse1 {
+  animation: pulse-ring-1 3s ease-out infinite;
+}
+
+.animate-pulse2 {
+  animation: pulse-ring-2 4s ease-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE TRANSITIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+.phase-container {
+  transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .phase-enter {
@@ -247,7 +317,306 @@ button:active {
   opacity: 1;
 }
 
-/* Question reveal - slower, more dramatic */
 .question-reveal {
-  transition: opacity 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: opacity 2.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.card-reveal {
+  animation: scaleIn 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENT STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Primary CTA Button */
+.btn-primary {
+  background: transparent;
+  border: 1px solid var(--white-10);
+  color: var(--white-50);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 16px 48px;
+  transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.btn-primary:hover {
+  border-color: var(--white-20);
+  color: var(--white-70);
+  opacity: 1;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--white-08);
+  color: var(--white-30);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 14px 40px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--white-15);
+  color: var(--white-50);
+  opacity: 1;
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--white-20);
+  font-size: 11px;
+  font-weight: 200;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 24px;
+}
+
+.btn-ghost:hover {
+  color: var(--white-40);
+  opacity: 1;
+}
+
+/* Submit Button (Italic Display) */
+.btn-submit {
+  background: transparent;
+  border: 1px solid var(--white-15);
+  color: var(--white-50);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  padding: 16px 44px;
+}
+
+.btn-submit:hover {
+  border-color: var(--white-25);
+  color: var(--white-70);
+  opacity: 1;
+}
+
+/* Textarea */
+.textarea-mirror {
+  width: 100%;
+  min-height: 180px;
+  background: var(--white-02);
+  border: 1px solid var(--white-05);
+  border-radius: 2px;
+  color: var(--white-90);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 200;
+  line-height: 1.9;
+  padding: 24px;
+  resize: vertical;
+  transition: border-color 0.5s ease, background 0.5s ease;
+}
+
+.textarea-mirror:focus {
+  border-color: var(--white-10);
+  background: var(--white-03);
+}
+
+/* Mirror Card */
+.mirror-card {
+  width: 100%;
+  max-width: 460px;
+  border: 1px solid var(--white-05);
+  border-radius: 3px;
+  padding: 36px 32px;
+  background: linear-gradient(
+    180deg,
+    var(--white-02) 0%,
+    transparent 100%
+  );
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.mirror-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--white-10) 50%,
+    transparent 100%
+  );
+}
+
+/* Divider */
+.divider {
+  width: 40px;
+  height: 1px;
+  background: var(--white-08);
+}
+
+.divider-full {
+  width: 100%;
+  height: 1px;
+  background: var(--white-05);
+}
+
+/* Quote Mark */
+.quote-mark {
+  font-family: var(--font-display);
+  font-size: 160px;
+  font-weight: 300;
+  color: var(--white-03);
+  line-height: 0.5;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Level Indicator */
+.level-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transition: all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.level-dot-active {
+  background: var(--white-50);
+  box-shadow: 0 0 12px var(--white-20);
+}
+
+.level-dot-inactive {
+  background: var(--white-08);
+}
+
+/* Crisis Banner */
+.crisis-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.9);
+  border-top: 1px solid var(--white-05);
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--white-50);
+  text-align: center;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+
+.crisis-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--crisis-red);
+  margin-right: 10px;
+  animation: breathe 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════ */
+
+.text-title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 12vw, 84px);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.text-question {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.text-observation {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 200;
+  line-height: 1.8;
+}
+
+.text-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 200;
+  line-height: 1.7;
+}
+
+.text-small {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 200;
+  line-height: 1.6;
+}
+
+.text-micro {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 200;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .mirror-card {
+    padding: 28px 24px;
+  }
+
+  .btn-primary,
+  .btn-submit {
+    padding: 14px 36px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .textarea-mirror {
+    padding: 20px;
+    min-height: 160px;
+  }
+
+  .quote-mark {
+    font-size: 120px;
+  }
+}
+
+/* Safe area for mobile */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .crisis-banner {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  }
 }
