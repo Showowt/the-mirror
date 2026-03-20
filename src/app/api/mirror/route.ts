@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { PROMPT_L1, PROMPT_L2, PROMPT_L3, PROMPT_CARD } from "@/lib/prompts";
+import { getPrompt } from "@/lib/prompts";
+import type { Lang } from "@/lib/types";
 
 // Simple in-memory rate limiting
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -29,13 +30,6 @@ function checkRateLimit(key: string): boolean {
   return true;
 }
 
-const PROMPTS: Record<string, string> = {
-  l1: PROMPT_L1,
-  l2: PROMPT_L2,
-  l3: PROMPT_L3,
-  card: PROMPT_CARD,
-};
-
 export async function POST(request: NextRequest) {
   try {
     const rateLimitKey = getRateLimitKey(request);
@@ -47,13 +41,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { level, content } = body;
+    const { level, content, lang = "en" } = body;
+
+    // Validate language
+    const validLang: Lang = lang === "es" ? "es" : "en";
 
     if (!level || !content || typeof content !== "string") {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    const systemPrompt = PROMPTS[level];
+    const systemPrompt = getPrompt(validLang, level);
     if (!systemPrompt) {
       return NextResponse.json(
         { error: "Invalid descent level." },
@@ -64,14 +61,22 @@ export async function POST(request: NextRequest) {
     const trimmedContent = content.trim();
     if (trimmedContent.length < 10) {
       return NextResponse.json(
-        { error: "Say a little more." },
+        {
+          error:
+            validLang === "es" ? "Dime un poco más." : "Say a little more.",
+        },
         { status: 400 },
       );
     }
 
     if (trimmedContent.length > 5000) {
       return NextResponse.json(
-        { error: "Too much. Distill it." },
+        {
+          error:
+            validLang === "es"
+              ? "Demasiado. Destílalo."
+              : "Too much. Distill it.",
+        },
         { status: 400 },
       );
     }

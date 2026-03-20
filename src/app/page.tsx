@@ -2,10 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { detectCrisis } from "@/lib/prompts";
-import type { Phase, MirrorCard, Vault } from "@/lib/types";
+import { T, detectLang, formatDate } from "@/lib/i18n";
+import type { Phase, MirrorCard, Vault, Lang } from "@/lib/types";
 
 /* ═══════════════════════════════════════════════════════════════
-   THE MIRROR v2 — THE DESCENT
+   THE MIRROR v2 — THE DESCENT — BILINGUAL
 
    A sacred space for self-reflection.
    AI that doesn't help you — it shows you yourself.
@@ -13,39 +14,17 @@ import type { Phase, MirrorCard, Vault } from "@/lib/types";
    by MachineMind | @showowt | Phil McGill
    ═══════════════════════════════════════════════════════════════ */
 
-const PHRASES: Record<string, string[]> = {
-  l1: [
-    "Reading between your words",
-    "Finding the shape of your perspective",
-    "Locating the blind spot",
-  ],
-  l2: [
-    "Reading your answer",
-    "Tracing the pattern underneath",
-    "Seeing what the words reveal",
-  ],
-  l3: [
-    "Going deeper",
-    "Finding what created the blind spot",
-    "Reaching the foundation",
-  ],
-  card: [
-    "Crystallizing the descent",
-    "Forging your Mirror Card",
-    "Capturing what was seen",
-  ],
-};
-
 // ═══ API Helper ═══
 async function callMirror(
   level: string,
   content: string,
+  lang: Lang,
 ): Promise<{ result: unknown; type: string } | null> {
   try {
     const res = await fetch("/api/mirror", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ level, content }),
+      body: JSON.stringify({ level, content, lang }),
     });
     if (!res.ok) throw new Error("API error");
     return await res.json();
@@ -58,7 +37,7 @@ async function callMirror(
 function loadVault(): Vault {
   if (typeof window === "undefined") return { cards: [] };
   try {
-    const stored = localStorage.getItem("mirror-vault");
+    const stored = localStorage.getItem("mirror-vault-v2");
     return stored ? JSON.parse(stored) : { cards: [] };
   } catch {
     return { cards: [] };
@@ -68,7 +47,7 @@ function loadVault(): Vault {
 function saveVault(vault: Vault): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem("mirror-vault", JSON.stringify(vault));
+    localStorage.setItem("mirror-vault-v2", JSON.stringify(vault));
   } catch (e) {
     console.error("Storage error:", e);
   }
@@ -78,6 +57,7 @@ function saveVault(vault: Vault): void {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 export default function MirrorV2() {
+  const [lang, setLang] = useState<Lang>("en");
   const [phase, setPhase] = useState<Phase>("landing");
   const [vis, setVis] = useState(false);
   const [text, setText] = useState("");
@@ -101,8 +81,20 @@ export default function MirrorV2() {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const taRef2 = useRef<HTMLTextAreaElement>(null);
 
-  // ═══ Load vault on mount ═══
+  // Get current translations
+  const t = T[lang];
+
+  // Processing phrases from translations
+  const PHRASES: Record<string, string[]> = {
+    l1: t.procL1,
+    l2: t.procL2,
+    l3: t.procL3,
+    card: t.procCard,
+  };
+
+  // ═══ Load vault and detect language on mount ═══
   useEffect(() => {
+    setLang(detectLang());
     setVault(loadVault());
     const timer = setTimeout(() => setVis(true), 150);
     return () => clearTimeout(timer);
@@ -125,7 +117,7 @@ export default function MirrorV2() {
     return () => {
       if (pTimer.current) clearInterval(pTimer.current);
     };
-  }, [phase, procLevel]);
+  }, [phase, procLevel, PHRASES]);
 
   // ═══ Transition helper ═══
   const goTo = useCallback((next: Phase, d = 600) => {
@@ -134,6 +126,11 @@ export default function MirrorV2() {
       setPhase(next);
       setTimeout(() => setVis(true), 100);
     }, d);
+  }, []);
+
+  // ═══ Language toggle ═══
+  const toggleLang = useCallback(() => {
+    setLang((l) => (l === "en" ? "es" : "en"));
   }, []);
 
   // ═══ Start a new descent ═══
@@ -159,14 +156,14 @@ export default function MirrorV2() {
     setPFade(true);
     goTo("proc-l1");
 
-    const response = await callMirror("l1", text.trim());
+    const response = await callMirror("l1", text.trim(), lang);
     if (!response || !response.result) {
       goTo("input", 500);
       return;
     }
     setQuestion1(response.result as string);
     goTo("question", 800);
-  }, [text, goTo]);
+  }, [text, goTo, lang]);
 
   // ═══ LEVEL 2: User answered, get observation ═══
   const submitAnswer = useCallback(async () => {
@@ -176,15 +173,19 @@ export default function MirrorV2() {
     setPFade(true);
     goTo("proc-l2");
 
-    const content = `SITUATION: ${text.trim()}\n\nQUESTION ASKED: ${question1}\n\nTHEIR ANSWER: ${answerText.trim()}`;
-    const response = await callMirror("l2", content);
+    const situationLabel = lang === "es" ? "SITUACIÓN" : "SITUATION";
+    const questionLabel = lang === "es" ? "PREGUNTA HECHA" : "QUESTION ASKED";
+    const answerLabel = lang === "es" ? "SU RESPUESTA" : "THEIR ANSWER";
+
+    const content = `${situationLabel}: ${text.trim()}\n\n${questionLabel}: ${question1}\n\n${answerLabel}: ${answerText.trim()}`;
+    const response = await callMirror("l2", content, lang);
     if (!response || !response.result) {
       goTo("answer-input", 500);
       return;
     }
     setObservation(response.result as string);
     goTo("observation", 800);
-  }, [answerText, text, question1, goTo]);
+  }, [answerText, text, question1, goTo, lang]);
 
   // ═══ LEVEL 3: Deeper question ═══
   const goDeeperQuestion = useCallback(async () => {
@@ -193,15 +194,21 @@ export default function MirrorV2() {
     setPFade(true);
     goTo("proc-l3");
 
-    const content = `SITUATION: ${text.trim()}\n\nFIRST QUESTION: ${question1}\n\nTHEIR ANSWER: ${answerText.trim()}\n\nOBSERVATION: ${observation}`;
-    const response = await callMirror("l3", content);
+    const situationLabel = lang === "es" ? "SITUACIÓN" : "SITUATION";
+    const firstQuestionLabel =
+      lang === "es" ? "PRIMERA PREGUNTA" : "FIRST QUESTION";
+    const answerLabel = lang === "es" ? "SU RESPUESTA" : "THEIR ANSWER";
+    const observationLabel = lang === "es" ? "OBSERVACIÓN" : "OBSERVATION";
+
+    const content = `${situationLabel}: ${text.trim()}\n\n${firstQuestionLabel}: ${question1}\n\n${answerLabel}: ${answerText.trim()}\n\n${observationLabel}: ${observation}`;
+    const response = await callMirror("l3", content, lang);
     if (!response || !response.result) {
       goTo("observation", 500);
       return;
     }
     setQuestion2(response.result as string);
     goTo("deeper", 800);
-  }, [text, question1, answerText, observation, goTo]);
+  }, [text, question1, answerText, observation, goTo, lang]);
 
   // ═══ LEVEL 4: Generate mirror card ═══
   const generateCard = useCallback(async () => {
@@ -210,8 +217,20 @@ export default function MirrorV2() {
     setPFade(true);
     goTo("proc-card");
 
-    const content = `SITUATION: ${text.trim()}\n\nQUESTION 1: ${question1}\n\nANSWER: ${answerText.trim() || "[User chose not to answer]"}\n\nOBSERVATION: ${observation || "[Skipped]"}\n\nQUESTION 2: ${question2 || "[Not reached]"}`;
-    const response = await callMirror("card", content);
+    const situationLabel = lang === "es" ? "SITUACIÓN" : "SITUATION";
+    const q1Label = lang === "es" ? "PREGUNTA 1" : "QUESTION 1";
+    const answerLabel = lang === "es" ? "RESPUESTA" : "ANSWER";
+    const obsLabel = lang === "es" ? "OBSERVACIÓN" : "OBSERVATION";
+    const q2Label = lang === "es" ? "PREGUNTA 2" : "QUESTION 2";
+    const noAnswerText =
+      lang === "es"
+        ? "[Usuario eligió no responder]"
+        : "[User chose not to answer]";
+    const skippedText = lang === "es" ? "[Saltado]" : "[Skipped]";
+    const notReachedText = lang === "es" ? "[No alcanzado]" : "[Not reached]";
+
+    const content = `${situationLabel}: ${text.trim()}\n\n${q1Label}: ${question1}\n\n${answerLabel}: ${answerText.trim() || noAnswerText}\n\n${obsLabel}: ${observation || skippedText}\n\n${q2Label}: ${question2 || notReachedText}`;
+    const response = await callMirror("card", content, lang);
 
     let card: MirrorCard;
 
@@ -225,27 +244,45 @@ export default function MirrorV2() {
       card = {
         id: Date.now().toString(),
         date: new Date().toISOString(),
-        pattern_name: cardData.pattern_name || "Uncharted Territory",
+        pattern_name:
+          cardData.pattern_name ||
+          (lang === "es" ? "Territorio Inexplorado" : "Uncharted Territory"),
         core_question: cardData.core_question || question2 || question1,
-        pattern_revealed: cardData.pattern_revealed || "A pattern is forming.",
+        pattern_revealed:
+          cardData.pattern_revealed ||
+          (lang === "es"
+            ? "Un patrón se está formando."
+            : "A pattern is forming."),
         still_unseen:
           cardData.still_unseen ||
-          "Something beneath the surface waits to be seen.",
+          (lang === "es"
+            ? "Algo bajo la superficie espera ser visto."
+            : "Something beneath the surface waits to be seen."),
         situation_preview: text.trim().slice(0, 140),
         question1,
         question2: question2 || "",
+        lang,
       };
     } else {
       card = {
         id: Date.now().toString(),
         date: new Date().toISOString(),
-        pattern_name: "Uncharted Territory",
+        pattern_name:
+          lang === "es" ? "Territorio Inexplorado" : "Uncharted Territory",
         core_question: question2 || question1,
-        pattern_revealed: observation || "A pattern is forming.",
-        still_unseen: "Something beneath the surface waits to be seen.",
+        pattern_revealed:
+          observation ||
+          (lang === "es"
+            ? "Un patrón se está formando."
+            : "A pattern is forming."),
+        still_unseen:
+          lang === "es"
+            ? "Algo bajo la superficie espera ser visto."
+            : "Something beneath the surface waits to be seen.",
         situation_preview: text.trim().slice(0, 140),
         question1,
         question2: question2 || "",
+        lang,
       };
     }
 
@@ -256,23 +293,24 @@ export default function MirrorV2() {
     saveVault(newVault);
 
     goTo("card", 900);
-  }, [text, question1, answerText, observation, question2, vault, goTo]);
+  }, [text, question1, answerText, observation, question2, vault, goTo, lang]);
 
   // ═══ Reset vault ═══
   const resetVault = useCallback(() => {
-    if (
-      !confirm("Clear all Mirror Cards from the Vault? This cannot be undone.")
-    )
-      return;
+    const confirmMsg =
+      lang === "es"
+        ? "¿Limpiar todas las Cartas del Espejo de la Bóveda? Esto no se puede deshacer."
+        : "Clear all Mirror Cards from the Vault? This cannot be undone.";
+    if (!confirm(confirmMsg)) return;
     const v = { cards: [] as MirrorCard[] };
     setVault(v);
     saveVault(v);
-  }, []);
+  }, [lang]);
 
   // ═══ Group cards by pattern ═══
   const patternGroups: Record<string, MirrorCard[]> = {};
   vault.cards.forEach((c) => {
-    const p = c.pattern_name || "Uncharted";
+    const p = c.pattern_name || (lang === "es" ? "Inexplorado" : "Uncharted");
     if (!patternGroups[p]) patternGroups[p] = [];
     patternGroups[p].push(c);
   });
@@ -294,16 +332,24 @@ export default function MirrorV2() {
      SUB-COMPONENTS
      ═══════════════════════════════════════════════════════════════ */
 
+  // Language Toggle
+  const LangToggle = () => (
+    <button
+      onClick={toggleLang}
+      className="lang-toggle"
+      aria-label={lang === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
+    >
+      {lang === "en" ? "ES" : "EN"}
+    </button>
+  );
+
   // Crisis Banner
   const CrisisBanner = () => (
     <div className="crisis-banner">
       <span className="crisis-dot" />
       <span>
-        If you&apos;re in crisis:{" "}
-        <strong className="text-white/70">
-          988 Suicide &amp; Crisis Lifeline
-        </strong>{" "}
-        — call or text <strong className="text-white/70">988</strong>
+        {t.crisisText} <strong className="text-white/70">{t.crisisLine}</strong>{" "}
+        — {t.crisisAction}
       </span>
     </div>
   );
@@ -317,7 +363,9 @@ export default function MirrorV2() {
           className={`level-dot ${i <= level ? "level-dot-active" : "level-dot-inactive"}`}
         />
       ))}
-      <span className="text-micro text-white/15 ml-3">Level {level}</span>
+      <span className="text-micro text-white/15 ml-3">
+        {t.levelLabel} {level}
+      </span>
     </div>
   );
 
@@ -358,6 +406,9 @@ export default function MirrorV2() {
       <div className="vignette" />
       <div className="center-glow" />
 
+      {/* Language Toggle */}
+      <LangToggle />
+
       {/* ═══ LANDING ═══ */}
       {phase === "landing" && (
         <div
@@ -372,24 +423,25 @@ export default function MirrorV2() {
             <div className="w-1.5 h-1.5 rounded-full bg-white/30 animate-breathe" />
           </div>
 
-          <h1 className="text-title text-white mb-6">The Mirror</h1>
+          <h1 className="text-title text-white mb-6">{t.title}</h1>
 
           <div className="divider mb-8" />
 
           <p className="text-body text-white/50 mb-3 max-w-[400px]">
-            Tell me what you&apos;re carrying right now.
+            {t.tagline}
           </p>
           <p className="text-small text-white/25 mb-12 max-w-[380px]">
-            I won&apos;t help you. I&apos;ll show you what you can&apos;t see.
+            {t.tagSub}
           </p>
 
           <div className="flex flex-col items-center gap-4">
             <button onClick={startDescent} className="btn-primary">
-              Begin a descent
+              {t.beginDescent}
             </button>
             {vault.cards.length > 0 && (
               <button onClick={() => goTo("vault")} className="btn-ghost">
-                The Vault · {vault.cards.length}
+                {t.theVault} · {vault.cards.length}{" "}
+                {vault.cards.length !== 1 ? t.cards : t.card}
               </button>
             )}
           </div>
@@ -408,11 +460,9 @@ export default function MirrorV2() {
           <DescentLevel level={1} />
 
           <p className="text-question text-white/65 mb-3 max-w-[500px]">
-            What&apos;s the situation, the decision, the thing weighing on you?
+            {t.promptL1}
           </p>
-          <p className="text-small text-white/20 mb-8">
-            Don&apos;t organize it. Don&apos;t make it make sense. Just say it.
-          </p>
+          <p className="text-small text-white/20 mb-8">{t.promptL1Sub}</p>
 
           <div className="w-full relative mb-6">
             <textarea
@@ -420,7 +470,7 @@ export default function MirrorV2() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown(submitSituation)}
-              placeholder="Start typing..."
+              placeholder={t.placeholder}
               maxLength={3000}
               rows={7}
               className="textarea-mirror"
@@ -441,13 +491,11 @@ export default function MirrorV2() {
               cursor: canSubmitSituation ? "pointer" : "default",
             }}
           >
-            Show me what I can&apos;t see
+            {t.submitBtn}
           </button>
 
           {text.length > 0 && !canSubmitSituation && (
-            <p className="text-micro text-white/20 mt-4">
-              Say a little more...
-            </p>
+            <p className="text-micro text-white/20 mt-4">{t.sayMore}</p>
           )}
         </div>
       )}
@@ -480,7 +528,7 @@ export default function MirrorV2() {
               }}
               className="btn-secondary"
             >
-              Answer this question
+              {t.answerThis}
             </button>
             <button
               onClick={() => {
@@ -489,13 +537,11 @@ export default function MirrorV2() {
               }}
               className="btn-ghost"
             >
-              That&apos;s enough
+              {t.thatsEnough}
             </button>
           </div>
 
-          <p className="text-micro text-white/8 mt-12">
-            Level 1 — The Question
-          </p>
+          <p className="text-micro text-white/8 mt-12">{t.level1}</p>
         </div>
       )}
 
@@ -511,17 +557,14 @@ export default function MirrorV2() {
           <DescentLevel level={2} />
           {isCrisis && <CrisisBanner />}
 
-          <p className="text-label text-white/20 mb-4">The question was:</p>
+          <p className="text-label text-white/20 mb-4">{t.questionWas}</p>
           <p className="text-question text-white/50 text-[clamp(17px,3vw,22px)] max-w-[480px] mb-6">
             {question1}
           </p>
 
           <div className="divider mb-6" />
 
-          <p className="text-small text-white/25 mb-8">
-            Answer it. Don&apos;t explain your situation more. Answer the
-            question.
-          </p>
+          <p className="text-small text-white/25 mb-8">{t.answerIt}</p>
 
           <div className="w-full relative mb-6">
             <textarea
@@ -529,7 +572,7 @@ export default function MirrorV2() {
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
               onKeyDown={handleKeyDown(submitAnswer)}
-              placeholder="Your answer..."
+              placeholder={t.answerPlaceholder}
               maxLength={2000}
               rows={5}
               className="textarea-mirror min-h-[140px]"
@@ -545,7 +588,7 @@ export default function MirrorV2() {
               cursor: canSubmitAnswer ? "pointer" : "default",
             }}
           >
-            Go deeper
+            {t.goDeeper}
           </button>
         </div>
       )}
@@ -562,18 +605,16 @@ export default function MirrorV2() {
           <DescentLevel level={2} />
           {isCrisis && <CrisisBanner />}
 
-          <p className="text-label text-white/20 mb-6">The Mirror sees:</p>
+          <p className="text-label text-white/20 mb-6">{t.mirrorSees}</p>
           <p className="text-observation text-white/75 max-w-[500px] mb-12">
             {observation}
           </p>
 
           <button onClick={goDeeperQuestion} className="btn-secondary">
-            Go deeper
+            {t.goDeeper}
           </button>
 
-          <p className="text-micro text-white/8 mt-12">
-            Level 2 — The Observation
-          </p>
+          <p className="text-micro text-white/8 mt-12">{t.level2}</p>
         </div>
       )}
 
@@ -595,12 +636,10 @@ export default function MirrorV2() {
           </div>
 
           <button onClick={generateCard} className="btn-secondary mt-8">
-            Complete the descent
+            {t.completeDescent}
           </button>
 
-          <p className="text-micro text-white/8 mt-12">
-            Level 3 — The Deeper Question
-          </p>
+          <p className="text-micro text-white/8 mt-12">{t.level3}</p>
         </div>
       )}
 
@@ -619,7 +658,7 @@ export default function MirrorV2() {
           <div className="mirror-card card-reveal">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-white/10 text-sm">◯</span>
-              <span className="text-label text-white/20">MIRROR CARD</span>
+              <span className="text-label text-white/20">{t.mirrorCard}</span>
             </div>
 
             <h2 className="font-display text-[28px] font-light text-white/90 text-left mb-5">
@@ -630,7 +669,7 @@ export default function MirrorV2() {
 
             <div className="text-left mb-5">
               <span className="text-label text-white/20 block mb-2">
-                The question that cut deepest
+                {t.cutDeepest}
               </span>
               <p className="font-display text-[16px] font-light italic text-white/70 leading-relaxed">
                 {mirrorCard.core_question}
@@ -639,7 +678,7 @@ export default function MirrorV2() {
 
             <div className="text-left mb-5">
               <span className="text-label text-white/20 block mb-2">
-                The pattern revealed
+                {t.patternRevealed}
               </span>
               <p className="text-body text-white/55">
                 {mirrorCard.pattern_revealed}
@@ -648,7 +687,7 @@ export default function MirrorV2() {
 
             <div className="text-left mb-4">
               <span className="text-label text-white/20 block mb-2">
-                What you might still not see
+                {t.stillUnseen}
               </span>
               <p className="text-body text-white/65 italic">
                 {mirrorCard.still_unseen}
@@ -657,29 +696,23 @@ export default function MirrorV2() {
 
             <div className="flex justify-end mt-6">
               <span className="text-micro text-white/15">
-                {new Date(mirrorCard.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+                {formatDate(mirrorCard.date, lang, "long")}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-4 mt-8">
             <button onClick={startDescent} className="btn-secondary">
-              New descent
+              {t.newDescent}
             </button>
             {vault.cards.length > 0 && (
               <button onClick={() => goTo("vault")} className="btn-ghost">
-                Open the Vault
+                {t.openVault}
               </button>
             )}
           </div>
 
-          <p className="text-micro text-white/8 mt-12">
-            The Mirror — MachineMind
-          </p>
+          <p className="text-micro text-white/8 mt-12">{t.credit}</p>
         </div>
       )}
 
@@ -693,19 +726,21 @@ export default function MirrorV2() {
           }}
         >
           <h1 className="font-display text-[clamp(40px,10vw,64px)] font-light text-white tracking-[0.04em] mb-4">
-            The Vault
+            {t.vaultTitle}
           </h1>
           <p className="text-small text-white/25 tracking-wide mb-8">
-            {vault.cards.length} descent{vault.cards.length !== 1 ? "s" : ""} ·{" "}
-            {Object.keys(patternGroups).length} pattern
-            {Object.keys(patternGroups).length !== 1 ? "s" : ""} identified
+            {vault.cards.length}{" "}
+            {vault.cards.length !== 1 ? t.descents : t.descent} ·{" "}
+            {Object.keys(patternGroups).length}{" "}
+            {Object.keys(patternGroups).length !== 1 ? t.patterns : t.pattern}{" "}
+            {t.identified}
           </p>
 
           <div className="divider mb-10" />
 
           {vault.cards.length === 0 ? (
             <p className="text-body text-white/20 italic mt-8">
-              No descents yet. Your pattern map builds with each one.
+              {t.noDescents}
             </p>
           ) : (
             <div className="w-full flex flex-col gap-10">
@@ -716,7 +751,7 @@ export default function MirrorV2() {
                       {pattern}
                     </span>
                     <span className="text-micro text-white/15">
-                      {cards.length} card{cards.length !== 1 ? "s" : ""}
+                      {cards.length} {cards.length !== 1 ? t.cards : t.card}
                     </span>
                   </div>
                   {cards
@@ -737,10 +772,7 @@ export default function MirrorV2() {
                           {c.still_unseen}
                         </p>
                         <span className="text-micro text-white/10">
-                          {new Date(c.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {formatDate(c.date, c.lang || lang, "short")}
                         </span>
                       </div>
                     ))}
@@ -751,24 +783,22 @@ export default function MirrorV2() {
 
           <div className="flex flex-wrap justify-center items-center gap-4 mt-12">
             <button onClick={startDescent} className="btn-secondary">
-              New descent
+              {t.newDescent}
             </button>
             <button onClick={() => goTo("landing")} className="btn-ghost">
-              Back
+              {t.back}
             </button>
             {vault.cards.length > 0 && (
               <button
                 onClick={resetVault}
                 className="btn-ghost text-red-300/30 hover:text-red-300/50"
               >
-                Clear vault
+                {t.clearVault}
               </button>
             )}
           </div>
 
-          <p className="text-micro text-white/8 mt-12">
-            The Mirror — MachineMind — @showowt
-          </p>
+          <p className="text-micro text-white/8 mt-12">{t.vaultCredit}</p>
         </div>
       )}
     </main>
