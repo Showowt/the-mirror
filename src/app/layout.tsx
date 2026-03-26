@@ -20,7 +20,9 @@ const outfit = Outfit({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5, // Allow zoom for accessibility
+  userScalable: true, // Allow pinch zoom for accessibility
+  viewportFit: "cover", // Enable safe area insets for notched devices
   themeColor: "#050505",
   colorScheme: "dark",
 };

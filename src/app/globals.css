@@ -54,6 +54,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* Prevent text selection on double-tap for mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -61,6 +63,10 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Prevent pull-to-refresh on overscroll */
+  overscroll-behavior: none;
+  /* Use dynamic viewport height for mobile browsers */
+  height: 100%;
 }
 
 body {
@@ -69,7 +75,15 @@ body {
   font-family: var(--font-body);
   line-height: 1.6;
   overflow-x: hidden;
+  /* Use dvh with vh fallback for mobile browsers */
   min-height: 100vh;
+  min-height: 100dvh;
+  /* Safe area padding for notched devices */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Enable smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 ::selection {
@@ -1788,11 +1802,127 @@ textarea:focus-visible {
   letter-spacing: 0.1em;
 }
 
+/* ═══ MOBILE DEVICE OPTIMIZATIONS ═══ */
+
+/* Safe area insets for notched devices (iPhone X+, Android punch-holes) */
+@supports (padding: env(safe-area-inset-top)) {
+  .mirror-nav {
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+
+  .crisis-bar {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .mirror-footer {
+    bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
+  }
+
+  .lang-toggle {
+    top: max(24px, calc(env(safe-area-inset-top) + 16px));
+    right: max(24px, calc(env(safe-area-inset-right) + 16px));
+  }
+}
+
+/* PWA Standalone Mode - when added to home screen */
+@media (display-mode: standalone) {
+  .mirror-nav {
+    padding-top: max(32px, env(safe-area-inset-top));
+  }
+
+  .crisis-bar {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  /* Hide elements that don't make sense in app mode */
+  .mirror-footer {
+    display: none;
+  }
+}
+
+/* Dynamic viewport height for mobile browsers */
+.mirror-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Touch-friendly minimum target sizes (48px recommended, 44px minimum) */
+.btn-descend,
+.btn-submit,
+.btn-deeper,
+.btn-complete,
+.btn-vault,
+.btn-ghost,
+.btn-danger,
+.auth-submit,
+.auth-alt-btn,
+.lang-toggle,
+.vault-back {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Prevent iOS input zoom - inputs must be 16px+ */
+input, textarea, select {
+  font-size: max(16px, 1rem);
+}
+
+/* Better touch scrolling */
+.vault-phase,
+.descent-phase,
+.onboarding-phase {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Keyboard avoidance - hide fixed elements when keyboard is visible */
+@media (max-height: 500px) and (orientation: portrait) {
+  .crisis-bar,
+  .mirror-footer {
+    display: none;
+  }
+
+  .mirror-root {
+    padding-bottom: 20px;
+  }
+}
+
+/* Landscape mode optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+  .portal {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+  }
+
+  .mirror-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+    margin-bottom: 16px;
+  }
+
+  .mirror-subtitle {
+    margin-bottom: 8px;
+  }
+
+  .mirror-whisper {
+    margin-bottom: 24px;
+  }
+
+  .mirror-root {
+    padding: 16px 24px;
+  }
+
+  .crisis-bar,
+  .mirror-footer {
+    display: none;
+  }
+}
+
 /* ═══ RESPONSIVE ═══ */
 
 @media (max-width: 640px) {
   .mirror-root {
     padding: 32px 20px;
+    padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 80px));
   }
 
   .portal {
@@ -1821,10 +1951,60 @@ textarea:focus-visible {
 
   .auth-modal {
     padding: 32px 24px;
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
   }
 
   .mirror-nav {
     padding: 16px 20px;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+
+  /* Larger touch targets on mobile */
+  .btn-descend {
+    padding: 20px 48px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .btn-submit {
+    padding: 18px 36px;
+  }
+
+  .btn-ghost {
+    padding: 16px 24px;
+  }
+
+  .level-node {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .level-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Prevent horizontal scroll */
+  .mirror-content {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Better textarea experience */
+  .mirror-textarea {
+    min-height: 160px;
+    padding: 20px;
+  }
+
+  .response-textarea {
+    min-height: 120px;
+    padding: 20px;
   }
 }
 
@@ -2377,4 +2557,203 @@ textarea:focus-visible {
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+/* ═══ EXTRA SMALL DEVICES (iPhone SE, small Androids) ═══ */
+
+@media (max-width: 375px) {
+  .mirror-root {
+    padding: 24px 16px;
+    padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 70px));
+  }
+
+  .portal {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 28px;
+  }
+
+  .mirror-title {
+    font-size: clamp(2.2rem, 12vw, 3.5rem);
+    letter-spacing: 0.04em;
+  }
+
+  .mirror-subtitle {
+    font-size: 1rem;
+    padding: 0 8px;
+  }
+
+  .mirror-whisper {
+    font-size: 0.7rem;
+    margin-bottom: 40px;
+  }
+
+  .btn-descend {
+    padding: 18px 32px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+  }
+
+  .prompt-text {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+    padding: 0 4px;
+  }
+
+  .mirror-textarea {
+    padding: 16px;
+    min-height: 140px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .input-footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .btn-submit {
+    width: 100%;
+  }
+
+  .mirror-question-card {
+    padding: 24px 16px;
+  }
+
+  .mirror-question-text {
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+  }
+
+  .response-textarea {
+    padding: 16px;
+    min-height: 100px;
+    font-size: 16px;
+  }
+
+  .level-indicator {
+    gap: 8px;
+  }
+
+  .level-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+  }
+
+  .auth-modal {
+    padding: 24px 16px;
+    margin: 8px;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .vault-title {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .vault-stat-value {
+    font-size: 2rem;
+  }
+
+  .onboarding-question {
+    font-size: clamp(1.1rem, 4vw, 1.3rem);
+    padding: 0 4px;
+  }
+
+  .onboarding-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .onboarding-actions .btn-ghost,
+  .onboarding-actions .btn-submit,
+  .onboarding-actions .btn-descend {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+/* ═══ LARGE PHONES & TABLETS ═══ */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .mirror-content {
+    max-width: 600px;
+  }
+
+  .mirror-root {
+    padding: 48px 32px;
+  }
+
+  .portal {
+    width: 160px;
+    height: 160px;
+  }
+}
+
+/* ═══ HIGH DPI / RETINA DISPLAYS ═══ */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper borders on retina */
+  .portal-ring,
+  .mirror-textarea,
+  .response-textarea,
+  .btn-descend,
+  .mirror-question-card {
+    border-width: 0.5px;
+  }
+}
+
+/* ═══ ANDROID-SPECIFIC FIXES ═══ */
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS-specific - already handled above */
+}
+
+@supports not (-webkit-touch-callout: none) {
+  /* Android-specific fixes */
+  .mirror-textarea:focus,
+  .response-textarea:focus,
+  .auth-input:focus {
+    /* Android Chrome needs explicit outline removal before custom focus */
+    outline-offset: 0;
+  }
+
+  /* Fix for Android Chrome address bar */
+  .mirror-root {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* ═══ DARK MODE PREFERENCE (already dark, but ensure consistency) ═══ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* ═══ PRINT STYLES (hide interactive elements) ═══ */
+
+@media print {
+  .crisis-bar,
+  .mirror-footer,
+  .lang-toggle,
+  .btn-descend,
+  .btn-submit,
+  .btn-deeper,
+  .btn-vault,
+  .voice-btn,
+  .mirror-nav {
+    display: none !important;
+  }
+
+  .mirror-root {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
 }
