@@ -155,6 +155,13 @@ const T = {
     processing: "Processing...",
     tapToSpeak: "Speak",
     stopRecording: "Stop",
+    goingDeeper: "Going deeper...",
+    revelationLabel: "What The Mirror saw",
+    depthReached: "Depth reached",
+    totalDescentsLabel: "Total descents",
+    momentSaved: "This moment has been saved. What was seen cannot be unseen.",
+    returnToSurface: "Return to surface",
+    seeAllPatterns: "See all my patterns",
   },
   es: {
     title: "El Espejo",
@@ -227,6 +234,14 @@ const T = {
     processing: "Procesando...",
     tapToSpeak: "Hablar",
     stopRecording: "Parar",
+    goingDeeper: "Yendo más profundo...",
+    revelationLabel: "Lo que El Espejo vio",
+    depthReached: "Nivel alcanzado",
+    totalDescentsLabel: "Descenso total",
+    momentSaved:
+      "Este momento ha sido guardado. Lo que fue visto no puede ser desvisto.",
+    returnToSurface: "Volver a la superficie",
+    seeAllPatterns: "Ver todos mis patrones",
   },
 };
 
@@ -1831,9 +1846,7 @@ export default function TheMirrorV3() {
                     style={{ borderColor: `var(--${currentLevel})` }}
                   />
                 </div>
-                <p className="seeing-text">
-                  {lang === "es" ? "Yendo más profundo..." : "Going deeper..."}
-                </p>
+                <p className="seeing-text">{t.goingDeeper}</p>
               </div>
             )}
 
@@ -1845,9 +1858,7 @@ export default function TheMirrorV3() {
                   <div className="revelation-glow" />
                   <div className="revelation-content">
                     <span className="revelation-label">
-                      {lang === "es"
-                        ? "Lo que El Espejo vio"
-                        : "What The Mirror saw"}
+                      {t.revelationLabel}
                     </span>
                     <p className="revelation-text">{currentMirrorResponse}</p>
                   </div>
@@ -1866,34 +1877,26 @@ export default function TheMirrorV3() {
                         ? DESCENT_LEVELS[currentLevel]?.nameEs
                         : DESCENT_LEVELS[currentLevel]?.name}
                     </span>
-                    <span className="summary-label">
-                      {lang === "es" ? "Nivel alcanzado" : "Depth reached"}
-                    </span>
+                    <span className="summary-label">{t.depthReached}</span>
                   </div>
                   <div className="summary-divider" />
                   <div className="summary-stat">
                     <span className="summary-value">
                       {sessionEntries.length}
                     </span>
-                    <span className="summary-label">
-                      {lang === "es" ? "Intercambios" : "Exchanges"}
-                    </span>
+                    <span className="summary-label">{t.exchanges}</span>
                   </div>
                   <div className="summary-divider" />
                   <div className="summary-stat">
                     <span className="summary-value">{sessions.length + 1}</span>
                     <span className="summary-label">
-                      {lang === "es" ? "Descenso total" : "Total descents"}
+                      {t.totalDescentsLabel}
                     </span>
                   </div>
                 </div>
 
                 {/* The Moment */}
-                <p className="awakening-message">
-                  {lang === "es"
-                    ? "Este momento ha sido guardado. Lo que fue visto no puede ser desvisto."
-                    : "This moment has been saved. What was seen cannot be unseen."}
-                </p>
+                <p className="awakening-message">{t.momentSaved}</p>
 
                 {/* Actions */}
                 <div className="awakening-actions">
@@ -1908,18 +1911,14 @@ export default function TheMirrorV3() {
                     }}
                     className="btn-ghost"
                   >
-                    {lang === "es"
-                      ? "Volver a la superficie"
-                      : "Return to surface"}
+                    {t.returnToSurface}
                   </button>
                   <button
                     onClick={() => transition("vault")}
                     className="btn-descend"
                     data-level={currentLevel}
                   >
-                    {lang === "es"
-                      ? "Ver todos mis patrones"
-                      : "See all my patterns"}
+                    {t.seeAllPatterns}
                   </button>
                 </div>
 

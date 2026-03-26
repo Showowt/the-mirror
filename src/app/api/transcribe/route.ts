@@ -8,8 +8,65 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// ─── RATE LIMITING ─────────────────────────────────────────────
+const TRANSCRIBE_LIMIT_PER_HOUR = 20;
+const transcribeRateMap = new Map<string, { count: number; start: number }>();
+
+function checkTranscribeRate(ip: string): {
+  allowed: boolean;
+  remaining: number;
+} {
+  const now = Date.now();
+  const entry = transcribeRateMap.get(ip);
+
+  // Cleanup old entries (older than 1 hour)
+  Array.from(transcribeRateMap.entries()).forEach(([key, val]) => {
+    if (now - val.start > 60 * 60 * 1000) {
+      transcribeRateMap.delete(key);
+    }
+  });
+
+  if (!entry || now - entry.start > 60 * 60 * 1000) {
+    transcribeRateMap.set(ip, { count: 1, start: now });
+    return { allowed: true, remaining: TRANSCRIBE_LIMIT_PER_HOUR - 1 };
+  }
+
+  if (entry.count >= TRANSCRIBE_LIMIT_PER_HOUR) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  entry.count++;
+  return { allowed: true, remaining: TRANSCRIBE_LIMIT_PER_HOUR - entry.count };
+}
+
+// ─── VALID AUDIO TYPES ─────────────────────────────────────────
+const VALID_AUDIO_TYPES = [
+  "audio/webm",
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/wav",
+  "audio/ogg",
+  "audio/x-m4a",
+  "audio/mp3",
+];
+
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting
+    const forwarded = req.headers.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
+    const rate = checkTranscribeRate(ip);
+
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        {
+          status: 429,
+          headers: { "X-RateLimit-Remaining": "0" },
+        },
+      );
+    }
+
     const formData = await req.formData();
     const audioFile = formData.get("audio") as File | null;
     const languageHint = formData.get("language") as string | null;
@@ -17,6 +74,15 @@ export async function POST(req: NextRequest) {
     if (!audioFile) {
       return NextResponse.json(
         { error: "No audio file provided" },
+        { status: 400 },
+      );
+    }
+
+    // Validate file type
+    const fileType = audioFile.type || "";
+    if (fileType && !VALID_AUDIO_TYPES.includes(fileType)) {
+      return NextResponse.json(
+        { error: "Invalid audio format. Supported: webm, mp4, mp3, wav, ogg" },
         { status: 400 },
       );
     }
@@ -80,8 +146,8 @@ export async function POST(req: NextRequest) {
       const errorText = await response.text();
       console.error("[Transcribe] OpenAI error:", response.status, errorText);
       return NextResponse.json(
-        { error: "Transcription failed", details: errorText },
-        { status: response.status },
+        { error: "Transcription failed. Please try again." },
+        { status: 503 },
       );
     }
 
