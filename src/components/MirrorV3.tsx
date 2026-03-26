@@ -1939,6 +1939,197 @@ export default function TheMirrorV3() {
               </div>
             )}
 
+            {/* Core Level Completion */}
+            {descentPhase === "showing" && currentLevel === "core" && (
+              <div className="core-completion">
+                <p className="core-prompt">
+                  {lang === "es"
+                    ? "Tómate un momento. Deja que esto se asiente."
+                    : "Take a moment. Let this settle."}
+                </p>
+                <button
+                  onClick={async () => {
+                    setDescentPhase("processing");
+                    const now = new Date().toISOString();
+                    const finalEntries: LocalMirrorEntry[] = [
+                      ...sessionEntries,
+                      {
+                        type: "observation",
+                        level: "core",
+                        content: currentMirrorResponse,
+                        timestamp: now,
+                      },
+                    ];
+                    setSessionEntries(finalEntries);
+
+                    const sessionData: LocalMirrorSession = {
+                      id: crypto.randomUUID(),
+                      startedAt: sessionEntries[0]?.timestamp || now,
+                      endedAt: now,
+                      offering: sessionEntries[0]?.content || "",
+                      deepestLevel: "core",
+                      entries: finalEntries,
+                      summary: null,
+                      primaryBlindSpot: null,
+                    };
+
+                    const analysis = await analyzeSession(sessionData, lang);
+
+                    if (analysis) {
+                      const updatedPatterns = [...patterns];
+                      const existing = updatedPatterns.find(
+                        (p) => p.name === analysis.patternName,
+                      );
+                      if (existing) {
+                        existing.occurrences += 1;
+                        existing.lastSeen = now;
+                        if (existing.occurrences >= 3)
+                          existing.status = "confirmed";
+                      } else {
+                        updatedPatterns.push({
+                          name: analysis.patternName,
+                          description: analysis.patternDescription,
+                          category: analysis.primaryBlindSpot,
+                          occurrences: 1,
+                          status: "emerging",
+                          firstDetected: now,
+                          lastSeen: now,
+                        });
+                      }
+                      setPatterns(updatedPatterns);
+
+                      if (isAuthenticated && user) {
+                        await db.upsertPattern(
+                          user.id,
+                          analysis.patternName,
+                          analysis.patternDescription,
+                          analysis.primaryBlindSpot,
+                          sessionData.id,
+                        );
+                      } else {
+                        saveLocalPatterns(updatedPatterns);
+                      }
+
+                      if (analysis.cognitiveUpdates) {
+                        const updated = { ...cogMap };
+                        updated.intellectualizer = Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            updated.intellectualizer +
+                              (analysis.cognitiveUpdates.intellectualizer || 0),
+                          ),
+                        );
+                        updated.externalizer = Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            updated.externalizer +
+                              (analysis.cognitiveUpdates.externalizer || 0),
+                          ),
+                        );
+                        updated.agencyScore = Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            updated.agencyScore +
+                              (analysis.cognitiveUpdates.agency || 0),
+                          ),
+                        );
+                        updated.depthTolerance = Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            updated.depthTolerance +
+                              (analysis.cognitiveUpdates.depthTolerance || 0),
+                          ),
+                        );
+                        updated.primaryDefense =
+                          analysis.responseBehavior || updated.primaryDefense;
+                        updated.sessionsAnalyzed += 1;
+                        updated.confidence = Math.min(
+                          100,
+                          Math.floor((updated.sessionsAnalyzed / 20) * 100),
+                        );
+                        setCogMap(updated);
+
+                        if (isAuthenticated && user) {
+                          await db.updateCognitiveMap(user.id, {
+                            intellectualizer_score: updated.intellectualizer,
+                            externalizer_score: updated.externalizer,
+                            agency_score: updated.agencyScore,
+                            depth_tolerance_score: updated.depthTolerance,
+                            primary_defense:
+                              updated.primaryDefense || undefined,
+                            sessions_analyzed: updated.sessionsAnalyzed,
+                            confidence_score: updated.confidence,
+                          });
+                        } else {
+                          saveLocalCognitiveMap(updated);
+                        }
+                      }
+
+                      sessionData.summary = analysis.sessionSummary;
+                      sessionData.primaryBlindSpot = analysis.primaryBlindSpot;
+                    }
+
+                    if (isAuthenticated && user) {
+                      const dbSession = await db.createSession(
+                        user.id,
+                        sessionData.offering,
+                        isCrisis,
+                      );
+                      if (dbSession) {
+                        for (let i = 0; i < finalEntries.length; i++) {
+                          const entry = finalEntries[i];
+                          await db.createEntry(
+                            dbSession.id,
+                            user.id,
+                            entry.type as
+                              | "offering"
+                              | "question"
+                              | "response"
+                              | "observation"
+                              | "pattern_reveal",
+                            entry.level,
+                            i,
+                            entry.content,
+                          );
+                        }
+                        await db.updateSession(dbSession.id, {
+                          ended_at: now,
+                          deepest_level: "core",
+                          total_entries: finalEntries.length,
+                          session_summary: sessionData.summary || undefined,
+                          primary_blind_spot:
+                            sessionData.primaryBlindSpot || undefined,
+                        });
+                        sessionData.id = dbSession.id;
+                      }
+                    } else {
+                      saveLocalSessions([...sessions, sessionData]);
+                    }
+
+                    setSessions([...sessions, sessionData]);
+                    const profile = getProfile() || createDefaultProfile();
+                    profile.totalDescents += 1;
+                    profile.lastDescentAt = now;
+                    profile.updatedAt = now;
+                    if (profile.deepestLevel !== "core") {
+                      profile.deepestLevel = "core";
+                    }
+                    saveProfile(profile);
+
+                    setDescentPhase("complete");
+                  }}
+                  className="btn-complete"
+                  data-level="core"
+                >
+                  {lang === "es" ? "He sido visto" : "I've been seen"}
+                </button>
+              </div>
+            )}
+
             {/* Response Input */}
             {descentPhase === "showing" && currentLevel !== "core" && (
               <div className="response-container">

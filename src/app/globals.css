@@ -714,6 +714,80 @@ body {
 .btn-deeper[data-level="origin"] { border-color: var(--origin); color: var(--origin); }
 .btn-deeper[data-level="core"] { border-color: var(--core); color: var(--core); }
 
+/* ═══ CORE COMPLETION ═══ */
+
+.core-completion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  margin-top: 48px;
+  padding: 40px 20px;
+  animation: fadeInUp 0.8s var(--ease-out-expo);
+}
+
+.core-prompt {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--light-50);
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.btn-complete {
+  background: transparent;
+  border: 1px solid var(--core);
+  color: var(--core);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 18px 48px;
+  cursor: pointer;
+  transition: all 0.5s var(--ease-out-expo);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-complete::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--core);
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out-expo);
+}
+
+.btn-complete:hover {
+  color: var(--void);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(196, 168, 122, 0.3);
+}
+
+.btn-complete:hover::before {
+  opacity: 1;
+}
+
+.btn-complete span,
+.btn-complete {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ═══ THE AWAKENING — Completion Moment ═══ */
 
 @keyframes revelationGlow {
@@ -936,21 +1010,101 @@ body {
 }
 
 @media (max-width: 640px) {
-  .revelation-content {
-    padding: 36px 24px;
+  /* Core Completion - Mobile */
+  .core-completion {
+    margin-top: 32px;
+    padding: 32px 16px;
+    gap: 28px;
   }
 
+  .core-prompt {
+    font-size: 1rem;
+    padding: 0 8px;
+  }
+
+  .btn-complete {
+    width: 100%;
+    max-width: 280px;
+    padding: 20px 40px;
+    font-size: 0.8rem;
+  }
+
+  /* Revelation - Mobile */
+  .revelation-container {
+    margin: 0 -16px;
+  }
+
+  .revelation-content {
+    padding: 32px 20px;
+  }
+
+  .revelation-label {
+    font-size: 0.55rem;
+  }
+
+  .revelation-text {
+    font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+    line-height: 1.7;
+  }
+
+  /* Awakening Summary - Mobile */
   .awakening-summary {
-    gap: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 16px 0;
+  }
+
+  .summary-stat {
+    min-width: 80px;
   }
 
   .summary-value {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 
+  .summary-label {
+    font-size: 0.55rem;
+  }
+
+  .summary-divider {
+    height: 30px;
+  }
+
+  /* Awakening Message - Mobile */
+  .awakening-message {
+    font-size: 0.9rem;
+    padding: 0 16px;
+    margin-bottom: 32px;
+  }
+
+  /* Awakening Actions - Mobile */
   .awakening-actions {
     flex-direction: column;
     gap: 12px;
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .awakening-actions button {
+    width: 100%;
+    padding: 18px 24px;
+  }
+
+  /* Awakening Breath - Mobile */
+  .awakening-breath {
+    margin: 24px 0 32px;
+  }
+
+  .breath-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Timestamp - Mobile */
+  .awakening-timestamp {
+    font-size: 0.6rem;
+    padding: 0 16px;
   }
 }
 
