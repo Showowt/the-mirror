@@ -8,6 +8,14 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 
+// Debug flag - set to true to enable verbose logging
+const DEBUG_VOICE = true;
+const log = (...args: unknown[]) => {
+  if (DEBUG_VOICE) {
+    console.log("[Voice]", ...args);
+  }
+};
+
 interface UseWhisperVoiceOptions {
   onTranscript: (text: string, isFinal: boolean) => void;
   onError?: (error: string) => void;
@@ -127,46 +135,90 @@ export function useWhisperVoice({
 
   // Transcribe audio using Whisper API
   const transcribeAudio = useCallback(
-    async (audioBlob: Blob) => {
+    async (audioBlob: Blob, mimeType: string) => {
+      log("transcribeAudio called", {
+        blobSize: audioBlob.size,
+        blobType: audioBlob.type,
+        mimeType,
+      });
+
       setIsProcessing(true);
 
       try {
+        // Determine the correct file extension based on mimeType
+        const extension = mimeType.includes("mp4") ? "mp4" : "webm";
+        const filename = `recording.${extension}`;
+
+        log("Creating FormData with filename:", filename);
+
         const formData = new FormData();
-        formData.append("audio", audioBlob, "recording.webm");
+        // Use the actual mimeType from the recording
+        const blobWithType = new Blob([audioBlob], { type: mimeType });
+        formData.append("audio", blobWithType, filename);
         formData.append("language", "auto"); // Auto-detect language
+
+        log("Sending fetch to /api/transcribe...");
 
         const response = await fetch("/api/transcribe", {
           method: "POST",
           body: formData,
         });
 
+        log("Fetch response status:", response.status);
+
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Transcription failed");
+          const errorText = await response.text();
+          log("Error response:", errorText);
+          let errorMessage = "Transcription failed";
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.error || errorMessage;
+          } catch {
+            // If not JSON, use the text directly
+            errorMessage = errorText || errorMessage;
+          }
+          throw new Error(errorMessage);
         }
 
         const result = await response.json();
+        log("Transcription result:", result);
 
         if (result.text && result.text.trim()) {
+          log("Calling onTranscript with:", result.text.trim());
           onTranscript(result.text.trim(), true);
+        } else {
+          log("No text in result or empty text");
+          onError?.("No speech detected. Please try again.");
         }
       } catch (error) {
         console.error("[Whisper] Transcription error:", error);
+        log("Transcription error:", error);
         onError?.(
           error instanceof Error ? error.message : "Transcription failed",
         );
       } finally {
         setIsProcessing(false);
+        log("Processing complete");
       }
     },
     [onTranscript, onError],
   );
 
+  // Store mimeType in a ref so onstop can access it
+  const mimeTypeRef = useRef<string>("audio/webm");
+
   // Start recording
   const start = useCallback(async () => {
-    if (isRecording || isProcessing) return;
+    log("start() called", { isRecording, isProcessing });
+
+    if (isRecording || isProcessing) {
+      log("Already recording or processing, returning");
+      return;
+    }
 
     try {
+      log("Requesting microphone access...");
+
       // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -175,6 +227,10 @@ export function useWhisperVoice({
           autoGainControl: true,
           sampleRate: 16000, // Optimal for Whisper
         },
+      });
+
+      log("Microphone access granted", {
+        tracks: stream.getAudioTracks().length,
       });
 
       streamRef.current = stream;
@@ -188,41 +244,103 @@ export function useWhisperVoice({
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      // Set up MediaRecorder
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-        ? "audio/webm;codecs=opus"
-        : MediaRecorder.isTypeSupported("audio/webm")
-          ? "audio/webm"
-          : "audio/mp4";
+      // Set up MediaRecorder - test supported formats
+      log("Testing supported MIME types...");
+      const formats = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4",
+        "audio/ogg;codecs=opus",
+        "audio/wav",
+      ];
+
+      let selectedMimeType = "";
+      for (const format of formats) {
+        if (MediaRecorder.isTypeSupported(format)) {
+          selectedMimeType = format;
+          log("Selected MIME type:", format);
+          break;
+        }
+      }
+
+      if (!selectedMimeType) {
+        log("No supported MIME type found!");
+        throw new Error("No supported audio format found");
+      }
+
+      mimeTypeRef.current = selectedMimeType;
 
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType,
+        mimeType: selectedMimeType,
         audioBitsPerSecond: 128000,
+      });
+
+      log("MediaRecorder created", {
+        state: mediaRecorder.state,
+        mimeType: mediaRecorder.mimeType,
       });
 
       audioChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
+        log("ondataavailable", {
+          dataSize: event.data.size,
+          totalChunks: audioChunksRef.current.length + 1,
+        });
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
 
       mediaRecorder.onstop = async () => {
-        // Combine all chunks into a single blob
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        log("onstop triggered", {
+          chunksCount: audioChunksRef.current.length,
+          mimeType: mimeTypeRef.current,
+        });
 
-        // Only transcribe if we have meaningful audio (> 0.5 seconds)
-        if (audioBlob.size > 5000) {
-          await transcribeAudio(audioBlob);
+        // Combine all chunks into a single blob
+        const chunks = audioChunksRef.current;
+        const usedMimeType = mimeTypeRef.current;
+
+        if (chunks.length === 0) {
+          log("No audio chunks collected!");
+          onError?.("No audio recorded. Please try again.");
+          return;
+        }
+
+        const audioBlob = new Blob(chunks, { type: usedMimeType });
+
+        log("Audio blob created", {
+          blobSize: audioBlob.size,
+          blobType: audioBlob.type,
+        });
+
+        // Only transcribe if we have meaningful audio (> 1KB to catch very short recordings)
+        if (audioBlob.size > 1000) {
+          log("Blob size OK, calling transcribeAudio...");
+          await transcribeAudio(audioBlob, usedMimeType);
+        } else {
+          log("Blob too small, skipping transcription", {
+            size: audioBlob.size,
+          });
+          onError?.("Recording too short. Please speak longer.");
         }
 
         // Clean up
         audioChunksRef.current = [];
       };
 
+      mediaRecorder.onerror = (event) => {
+        log("MediaRecorder error:", event);
+        console.error("[Voice] MediaRecorder error:", event);
+        onError?.("Recording error occurred");
+      };
+
       mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start(100); // Collect data every 100ms
+
+      // Use timeslice of 250ms to ensure we get data chunks
+      mediaRecorder.start(250);
+      log("MediaRecorder started with timeslice 250ms");
 
       setIsRecording(true);
       lastAudioTimeRef.current = Date.now();
@@ -232,12 +350,16 @@ export function useWhisperVoice({
 
       // Set max duration timer
       maxDurationTimerRef.current = setTimeout(() => {
+        log("Max duration reached, stopping...");
         if (isRecording) {
           stop();
         }
       }, maxDuration);
+
+      log("Recording started successfully");
     } catch (error) {
       console.error("[Whisper] Failed to start recording:", error);
+      log("Failed to start recording:", error);
       onError?.(
         error instanceof Error ? error.message : "Failed to access microphone",
       );
@@ -253,7 +375,12 @@ export function useWhisperVoice({
 
   // Stop recording
   const stop = useCallback(async () => {
-    if (!isRecording) return;
+    log("stop() called", { isRecording });
+
+    if (!isRecording) {
+      log("Not recording, returning");
+      return;
+    }
 
     // Clear timers
     if (silenceTimerRef.current) {
@@ -272,21 +399,36 @@ export function useWhisperVoice({
     setIsRecording(false);
     setAudioLevel(0);
 
-    // Stop MediaRecorder
+    // Stop MediaRecorder - this will trigger onstop
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== "inactive"
     ) {
+      log("Stopping MediaRecorder, state:", mediaRecorderRef.current.state);
+
+      // Request any pending data before stopping
+      if (mediaRecorderRef.current.state === "recording") {
+        mediaRecorderRef.current.requestData();
+      }
+
       mediaRecorderRef.current.stop();
+      log("MediaRecorder.stop() called");
+    } else {
+      log("MediaRecorder already inactive or null");
     }
 
     // Stop all tracks
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      log("Stopping stream tracks...");
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+        log("Track stopped:", track.kind);
+      });
       streamRef.current = null;
     }
 
     analyserRef.current = null;
+    log("stop() complete");
   }, [isRecording]);
 
   // Toggle recording
