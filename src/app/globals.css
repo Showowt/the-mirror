@@ -1896,6 +1896,33 @@ body {
   margin-top: 8px;
 }
 
+/* Real-time transcription preview */
+.interim-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  background: var(--void-elevated);
+  border: 1px solid var(--surface-glow);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--surface);
+  font-style: italic;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.interim-indicator {
+  color: var(--surface);
+  font-size: 0.6rem;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 /* Voice button in response section (smaller variant) */
 .response-voice-section {
   display: flex;

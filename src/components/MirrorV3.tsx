@@ -30,7 +30,7 @@ import {
   saveLanguage,
 } from "@/lib/supabase/storage";
 import { useAuth } from "@/lib/supabase/useAuth";
-import { useWhisperVoice } from "@/lib/useWhisperVoice";
+import { useWebSpeech } from "@/lib/useWebSpeech";
 import * as db from "@/lib/supabase/db";
 
 // ═══════════════════════════════════════════════════════════════
@@ -991,52 +991,66 @@ export default function TheMirrorV3() {
   const seeingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasSynced = useRef(false);
 
-  // Voice transcription (Whisper)
+  // Voice transcription (Web Speech API - free, real-time)
+  const [interimText, setInterimText] = useState("");
   const {
-    isRecording,
-    isProcessing: isTranscribing,
+    isListening: isRecording,
     isSupported: voiceSupported,
-    audioLevel,
     toggle: toggleVoice,
-  } = useWhisperVoice({
+  } = useWebSpeech({
     onTranscript: (transcribedText, isFinal) => {
       if (isFinal && transcribedText) {
-        // Append to existing text with proper spacing
+        // Append final text
         setText((prev) => {
           const separator = prev.trim() ? " " : "";
           return prev.trim() + separator + transcribedText;
         });
+        setInterimText("");
+      } else {
+        // Show interim results
+        setInterimText(transcribedText);
       }
     },
     onError: (error) => {
       console.error("[Voice] Error:", error);
     },
-    silenceTimeout: 3000, // Auto-stop after 3s silence
-    maxDuration: 120000, // Max 2 minutes
+    language: lang === "es" ? "es" : "en",
+    continuous: true,
+    interimResults: true,
   });
 
+  // No processing state needed for Web Speech (it's real-time)
+  const isTranscribing = false;
+  const audioLevel = isRecording ? 50 : 0; // Simulated for visual feedback
+
   // Voice for response input during descent
+  const [interimResponse, setInterimResponse] = useState("");
   const {
-    isRecording: isRecordingResponse,
-    isProcessing: isTranscribingResponse,
+    isListening: isRecordingResponse,
     isSupported: voiceSupportedResponse,
-    audioLevel: audioLevelResponse,
     toggle: toggleVoiceResponse,
-  } = useWhisperVoice({
+  } = useWebSpeech({
     onTranscript: (transcribedText, isFinal) => {
       if (isFinal && transcribedText) {
         setUserResponse((prev) => {
           const separator = prev.trim() ? " " : "";
           return prev.trim() + separator + transcribedText;
         });
+        setInterimResponse("");
+      } else {
+        setInterimResponse(transcribedText);
       }
     },
     onError: (error) => {
       console.error("[Voice Response] Error:", error);
     },
-    silenceTimeout: 3000,
-    maxDuration: 120000,
+    language: lang === "es" ? "es" : "en",
+    continuous: true,
+    interimResults: true,
   });
+
+  const isTranscribingResponse = false;
+  const audioLevelResponse = isRecordingResponse ? 50 : 0;
 
   // Load data
   useEffect(() => {
@@ -1744,6 +1758,13 @@ export default function TheMirrorV3() {
                 autoFocus
                 className="mirror-textarea"
               />
+              {/* Real-time transcription preview */}
+              {isRecording && interimText && (
+                <div className="interim-text">
+                  <span className="interim-indicator">●</span>
+                  {interimText}
+                </div>
+              )}
             </div>
             <div className="input-footer">
               <button
@@ -2217,6 +2238,13 @@ export default function TheMirrorV3() {
                   autoFocus
                   className="response-textarea"
                 />
+                {/* Real-time transcription preview */}
+                {isRecordingResponse && interimResponse && (
+                  <div className="interim-text">
+                    <span className="interim-indicator">●</span>
+                    {interimResponse}
+                  </div>
+                )}
                 <div className="response-actions">
                   <button
                     onClick={submitResponse}
