@@ -10,6 +10,8 @@ import {
   type LocalCalibration,
   type ResponseBehavior,
   type BlindSpotCategory,
+  type EmergenceType,
+  type CalibrationApproach,
   DESCENT_LEVELS,
 } from "@/lib/supabase/types";
 import {
@@ -43,11 +45,373 @@ type Lang = "en" | "es";
 type Phase =
   | "loading"
   | "landing"
+  | "onboarding"
   | "input"
   | "processing"
   | "descent"
   | "vault";
 type DescentPhase = "showing" | "responding" | "processing" | "complete";
+
+// ═══ ONBOARDING QUESTIONS ═══
+const ONBOARDING_QUESTIONS = {
+  en: [
+    {
+      id: "situation",
+      question: "What brings you here right now?",
+      placeholder:
+        "A decision you can't make. A relationship that's stuck. Something you keep thinking about...",
+    },
+    {
+      id: "pattern",
+      question: "What's something you keep doing even though you know better?",
+      placeholder: "A habit, a response, a way of avoiding something...",
+    },
+    {
+      id: "protection",
+      question: "What's something you never let people see about you?",
+      placeholder: "The part you hide, the thing you're afraid they'd find...",
+    },
+    {
+      id: "origin",
+      question: "When did you first learn you had to be this way?",
+      placeholder: "A moment, a relationship, a message you received...",
+    },
+    {
+      id: "desire",
+      question: "What would you do if no one was watching or judging?",
+      placeholder: "The thing you actually want but won't say out loud...",
+    },
+  ],
+  es: [
+    {
+      id: "situation",
+      question: "¿Qué te trae aquí en este momento?",
+      placeholder:
+        "Una decisión que no puedes tomar. Una relación estancada. Algo que no dejas de pensar...",
+    },
+    {
+      id: "pattern",
+      question:
+        "¿Qué es algo que sigues haciendo aunque sabes que no deberías?",
+      placeholder: "Un hábito, una respuesta, una forma de evitar algo...",
+    },
+    {
+      id: "protection",
+      question: "¿Qué es algo que nunca dejas que la gente vea de ti?",
+      placeholder: "La parte que escondes, lo que temes que descubran...",
+    },
+    {
+      id: "origin",
+      question: "¿Cuándo aprendiste por primera vez que tenías que ser así?",
+      placeholder: "Un momento, una relación, un mensaje que recibiste...",
+    },
+    {
+      id: "desire",
+      question: "¿Qué harías si nadie te estuviera mirando o juzgando?",
+      placeholder: "Lo que realmente quieres pero no dices en voz alta...",
+    },
+  ],
+};
+
+// ═══ ARRIVAL INTELLIGENCE ═══
+interface ArrivalContext {
+  isReturning: boolean;
+  sessionCount: number;
+  daysSinceLastSession: number;
+  confirmedPatterns: LocalMirrorPattern[];
+  activePatterns: LocalMirrorPattern[];
+  cognitiveMap: LocalCognitiveMap | null;
+  lastSessionSummary: string | null;
+}
+
+function generateArrivalMessage(context: ArrivalContext, lang: Lang): string {
+  const { isReturning, sessionCount, daysSinceLastSession, confirmedPatterns } =
+    context;
+
+  if (!isReturning || sessionCount === 0) {
+    return lang === "es"
+      ? "Bienvenido. Voy a ver lo que no puedes ver sobre ti mismo."
+      : "Welcome. I'm going to see what you can't see about yourself.";
+  }
+
+  // Pattern-based arrival for users with confirmed patterns
+  if (confirmedPatterns.length > 0) {
+    const topPattern = confirmedPatterns[0];
+    if (lang === "es") {
+      return `Veo que sigues volviendo. La última vez encontramos "${topPattern.name}". ¿Sigue operando?`;
+    }
+    return `You keep coming back. Last time we found "${topPattern.name}". Is it still running?`;
+  }
+
+  // Time-based arrival messages
+  if (daysSinceLastSession > 30) {
+    return lang === "es"
+      ? "Ha pasado tiempo. ¿Qué ha estado cocinándose debajo?"
+      : "It's been a while. What's been cooking underneath?";
+  }
+
+  if (daysSinceLastSession > 7) {
+    return lang === "es"
+      ? "Una semana más de vida vivida. ¿Qué está pidiendo ser visto?"
+      : "Another week of life lived. What's asking to be seen?";
+  }
+
+  // Frequent user
+  if (sessionCount > 10) {
+    return lang === "es"
+      ? "Sigues volviendo al espejo. Eso dice algo. ¿Qué es?"
+      : "You keep returning to the mirror. That says something. What is it?";
+  }
+
+  // Regular return
+  return lang === "es"
+    ? "Has vuelto. El espejo está listo."
+    : "You've returned. The mirror is ready.";
+}
+
+// ═══ CALIBRATION ENGINE ═══
+interface CalibrationResult {
+  approach: CalibrationApproach;
+  reasoning: string;
+}
+
+function selectApproach(
+  cogMap: LocalCognitiveMap | null,
+  patterns: LocalMirrorPattern[],
+  calibration: LocalCalibration,
+): CalibrationResult {
+  // Default approach
+  if (!cogMap || cogMap.sessionsAnalyzed < 3) {
+    return {
+      approach: "observational",
+      reasoning: "New user - starting with observation",
+    };
+  }
+
+  // Find most effective approach from calibration data
+  const approaches = Object.entries(calibration);
+  if (approaches.length > 0) {
+    const best = approaches
+      .filter(([, v]) => v.uses >= 2)
+      .sort(([, a], [, b]) => b.effectiveness - a.effectiveness)[0];
+    if (best && best[1].effectiveness > 6) {
+      return {
+        approach: best[0] as CalibrationApproach,
+        reasoning: `Historical effectiveness: ${best[1].effectiveness}/10`,
+      };
+    }
+  }
+
+  // Cognitive-map based selection
+  if (cogMap.intellectualizer > 70) {
+    return {
+      approach: "somatic",
+      reasoning: "High intellectualizer - go to body",
+    };
+  }
+  if (cogMap.externalizer > 70) {
+    return {
+      approach: "lateral",
+      reasoning: "High externalizer - use lateral approach",
+    };
+  }
+  if (cogMap.depthTolerance > 70) {
+    return {
+      approach: "gut_punch",
+      reasoning: "High depth tolerance - can handle direct",
+    };
+  }
+  if (cogMap.depthTolerance < 30) {
+    return {
+      approach: "slow_reveal",
+      reasoning: "Low depth tolerance - go slow",
+    };
+  }
+
+  // Pattern-based selection
+  const confirmedPatterns = patterns.filter((p) => p.status === "confirmed");
+  if (confirmedPatterns.length > 0) {
+    return {
+      approach: "paradoxical",
+      reasoning: "Confirmed patterns - use paradox",
+    };
+  }
+
+  return {
+    approach: "observational",
+    reasoning: "Default observational approach",
+  };
+}
+
+// ═══ EMERGENCE DETECTION ═══
+interface EmergenceEvent {
+  type: EmergenceType;
+  description: string;
+  sessionId: string;
+  entryContent: string;
+  timestamp: string;
+}
+
+function detectEmergence(
+  previousEntry: LocalMirrorEntry | null,
+  currentEntry: LocalMirrorEntry,
+  patterns: LocalMirrorPattern[],
+): EmergenceEvent | null {
+  const content = currentEntry.content.toLowerCase();
+
+  // Frame break detection - when someone suddenly sees differently
+  const frameBreakIndicators = [
+    "i never realized",
+    "nunca me di cuenta",
+    "i just understood",
+    "acabo de entender",
+    "wait, that's",
+    "espera, eso es",
+    "oh my god",
+    "dios mío",
+    "holy shit",
+    "that's exactly",
+    "eso es exactamente",
+    "i've been doing this",
+    "he estado haciendo esto",
+  ];
+  for (const indicator of frameBreakIndicators) {
+    if (content.includes(indicator)) {
+      return {
+        type: "frame_break",
+        description: "User experienced a frame break - seeing something new",
+        sessionId: "",
+        entryContent: currentEntry.content,
+        timestamp: currentEntry.timestamp,
+      };
+    }
+  }
+
+  // Emotional break detection
+  const emotionalIndicators = [
+    "crying",
+    "llorando",
+    "tears",
+    "lágrimas",
+    "i feel",
+    "siento",
+    "this hurts",
+    "esto duele",
+    "it's painful",
+    "es doloroso",
+    "scared",
+    "asustado",
+    "terrified",
+    "aterrorizado",
+  ];
+  for (const indicator of emotionalIndicators) {
+    if (content.includes(indicator)) {
+      return {
+        type: "emotional_break",
+        description: "User accessing deep emotion",
+        sessionId: "",
+        entryContent: currentEntry.content,
+        timestamp: currentEntry.timestamp,
+      };
+    }
+  }
+
+  // Pattern recognition - user names their own pattern
+  const patternIndicators = [
+    "i always do this",
+    "siempre hago esto",
+    "this is what i do",
+    "esto es lo que hago",
+    "my pattern",
+    "mi patrón",
+    "i keep doing",
+    "sigo haciendo",
+    "every time",
+    "cada vez",
+  ];
+  for (const indicator of patternIndicators) {
+    if (content.includes(indicator)) {
+      return {
+        type: "pattern_recognition",
+        description: "User recognizing their own pattern",
+        sessionId: "",
+        entryContent: currentEntry.content,
+        timestamp: currentEntry.timestamp,
+      };
+    }
+  }
+
+  // Integration - connecting present to past
+  const integrationIndicators = [
+    "because of my",
+    "por mi",
+    "that's why i",
+    "por eso yo",
+    "my mother",
+    "mi madre",
+    "my father",
+    "mi padre",
+    "when i was",
+    "cuando era",
+    "growing up",
+    "creciendo",
+    "childhood",
+    "infancia",
+    "learned to",
+    "aprendí a",
+  ];
+  for (const indicator of integrationIndicators) {
+    if (content.includes(indicator)) {
+      return {
+        type: "integration",
+        description: "User connecting present pattern to origin",
+        sessionId: "",
+        entryContent: currentEntry.content,
+        timestamp: currentEntry.timestamp,
+      };
+    }
+  }
+
+  return null;
+}
+
+// ═══ PATTERN CONFRONTATION ═══
+function shouldConfrontPattern(
+  patterns: LocalMirrorPattern[],
+  currentLevel: DescentLevel,
+  sessionEntries: LocalMirrorEntry[],
+): { confront: boolean; pattern: LocalMirrorPattern | null } {
+  // Only confront at pattern level or deeper
+  if (currentLevel === "surface") {
+    return { confront: false, pattern: null };
+  }
+
+  // Find confirmed patterns not yet confronted in this session
+  const confirmedPatterns = patterns.filter(
+    (p) => p.status === "confirmed" && p.occurrences >= 3,
+  );
+  if (confirmedPatterns.length === 0) {
+    return { confront: false, pattern: null };
+  }
+
+  // Check if we've already confronted a pattern this session
+  const hasConfronted = sessionEntries.some(
+    (e) =>
+      e.type === "pattern_reveal" ||
+      e.content.includes("I've noticed this pattern"),
+  );
+  if (hasConfronted) {
+    return { confront: false, pattern: null };
+  }
+
+  // 30% chance to confront at pattern level, 50% at origin/core
+  const confrontChance = currentLevel === "pattern" ? 0.3 : 0.5;
+  if (Math.random() > confrontChance) {
+    return { confront: false, pattern: null };
+  }
+
+  return { confront: true, pattern: confirmedPatterns[0] };
+}
 
 const SEEING_MESSAGES = {
   en: [
@@ -162,6 +526,27 @@ const T = {
     momentSaved: "This moment has been saved. What was seen cannot be unseen.",
     returnToSurface: "Return to surface",
     seeAllPatterns: "See all my patterns",
+    // Onboarding
+    onboardingTitle: "Before We Begin",
+    onboardingSubtitle: "I need to understand your shape",
+    onboardingProgress: "Question",
+    onboardingOf: "of",
+    onboardingNext: "Next",
+    onboardingBack: "Back",
+    onboardingSkip: "Skip for now",
+    onboardingComplete: "Enter The Mirror",
+    // Emergence
+    emergenceDetected: "Something shifted",
+    frameBreak: "You just saw something new",
+    emotionalBreak: "You're touching something real",
+    patternRecognition: "You're naming your pattern",
+    integration: "You're connecting the dots",
+    // Pattern confrontation
+    patternNotice: "I've noticed something",
+    patternRunning: "This pattern keeps running in you:",
+    // Arrival
+    arrivalWelcome: "Welcome back",
+    arrivalFirstTime: "Welcome",
   },
   es: {
     title: "El Espejo",
@@ -242,6 +627,27 @@ const T = {
       "Este momento ha sido guardado. Lo que fue visto no puede ser desvisto.",
     returnToSurface: "Volver a la superficie",
     seeAllPatterns: "Ver todos mis patrones",
+    // Onboarding
+    onboardingTitle: "Antes de Comenzar",
+    onboardingSubtitle: "Necesito entender tu forma",
+    onboardingProgress: "Pregunta",
+    onboardingOf: "de",
+    onboardingNext: "Siguiente",
+    onboardingBack: "Atrás",
+    onboardingSkip: "Saltar por ahora",
+    onboardingComplete: "Entrar al Espejo",
+    // Emergence
+    emergenceDetected: "Algo cambió",
+    frameBreak: "Acabas de ver algo nuevo",
+    emotionalBreak: "Estás tocando algo real",
+    patternRecognition: "Estás nombrando tu patrón",
+    integration: "Estás conectando los puntos",
+    // Pattern confrontation
+    patternNotice: "He notado algo",
+    patternRunning: "Este patrón sigue operando en ti:",
+    // Arrival
+    arrivalWelcome: "Bienvenido de nuevo",
+    arrivalFirstTime: "Bienvenido",
   },
 };
 
@@ -960,6 +1366,127 @@ function CrisisBar({ lang }: { lang: Lang }) {
   );
 }
 
+// ═══ EMERGENCE INDICATOR ═══
+function EmergenceIndicator({
+  emergence,
+  lang,
+}: {
+  emergence: EmergenceEvent;
+  lang: Lang;
+}) {
+  const t = T[lang];
+  const getLabel = () => {
+    switch (emergence.type) {
+      case "frame_break":
+        return t.frameBreak;
+      case "emotional_break":
+        return t.emotionalBreak;
+      case "pattern_recognition":
+        return t.patternRecognition;
+      case "integration":
+        return t.integration;
+      default:
+        return t.emergenceDetected;
+    }
+  };
+
+  return (
+    <div className="emergence-indicator fade-in">
+      <div className="emergence-pulse" />
+      <span className="emergence-text">{getLabel()}</span>
+    </div>
+  );
+}
+
+// ═══ ONBOARDING VIEW ═══
+function OnboardingView({
+  lang,
+  step,
+  answers,
+  onAnswer,
+  onNext,
+  onBack,
+  onSkip,
+  onComplete,
+}: {
+  lang: Lang;
+  step: number;
+  answers: Record<string, string>;
+  onAnswer: (id: string, value: string) => void;
+  onNext: () => void;
+  onBack: () => void;
+  onSkip: () => void;
+  onComplete: () => void;
+}) {
+  const t = T[lang];
+  const questions = ONBOARDING_QUESTIONS[lang];
+  const currentQuestion = questions[step];
+  const isLastStep = step === questions.length - 1;
+  const canProceed = answers[currentQuestion.id]?.trim().length >= 10;
+
+  return (
+    <div className="onboarding-phase fade-in">
+      <div className="onboarding-header">
+        <h1 className="onboarding-title">{t.onboardingTitle}</h1>
+        <p className="onboarding-subtitle">{t.onboardingSubtitle}</p>
+      </div>
+
+      <div className="onboarding-progress">
+        <span className="onboarding-progress-text">
+          {t.onboardingProgress} {step + 1} {t.onboardingOf} {questions.length}
+        </span>
+        <div className="onboarding-progress-bar">
+          <div
+            className="onboarding-progress-fill"
+            style={{ width: `${((step + 1) / questions.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="onboarding-question-container">
+        <p className="onboarding-question">{currentQuestion.question}</p>
+        <textarea
+          value={answers[currentQuestion.id] || ""}
+          onChange={(e) => onAnswer(currentQuestion.id, e.target.value)}
+          placeholder={currentQuestion.placeholder}
+          className="mirror-textarea"
+          autoFocus
+        />
+      </div>
+
+      <div className="onboarding-actions">
+        {step > 0 && (
+          <button onClick={onBack} className="btn-ghost">
+            {t.onboardingBack}
+          </button>
+        )}
+        {step === 0 && (
+          <button onClick={onSkip} className="btn-ghost">
+            {t.onboardingSkip}
+          </button>
+        )}
+        {isLastStep ? (
+          <button
+            onClick={onComplete}
+            disabled={!canProceed}
+            className="btn-descend"
+          >
+            {t.onboardingComplete}
+          </button>
+        ) : (
+          <button
+            onClick={onNext}
+            disabled={!canProceed}
+            className="btn-submit"
+          >
+            {t.onboardingNext}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ═══ MAIN COMPONENT ═══
 export default function TheMirrorV3() {
   const { user, loading: authLoading, isAuthenticated, signOut } = useAuth();
@@ -986,6 +1513,18 @@ export default function TheMirrorV3() {
     createDefaultCognitiveMap(),
   );
   const [calibration, setCalibration] = useState<LocalCalibration>({});
+
+  // New intelligence features
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingAnswers, setOnboardingAnswers] = useState<
+    Record<string, string>
+  >({});
+  const [arrivalMessage, setArrivalMessage] = useState<string>("");
+  const [currentEmergence, setCurrentEmergence] =
+    useState<EmergenceEvent | null>(null);
+  const [selectedApproach, setSelectedApproach] =
+    useState<CalibrationResult | null>(null);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   const taRef = useRef<HTMLTextAreaElement>(null);
   const seeingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -1223,6 +1762,48 @@ export default function TheMirrorV3() {
         setCalibration(getLocalCalibration());
       }
 
+      // Initialize arrival intelligence
+      const loadedSessions = getLocalSessions();
+      const loadedPatterns = getLocalPatterns();
+      const loadedCogMap = getLocalCognitiveMap();
+
+      const arrivalContext: ArrivalContext = {
+        isReturning: loadedSessions.length > 0,
+        sessionCount: loadedSessions.length,
+        daysSinceLastSession:
+          loadedSessions.length > 0
+            ? Math.floor(
+                (Date.now() -
+                  new Date(
+                    loadedSessions[loadedSessions.length - 1].startedAt,
+                  ).getTime()) /
+                  (1000 * 60 * 60 * 24),
+              )
+            : 0,
+        confirmedPatterns: loadedPatterns.filter(
+          (p) => p.status === "confirmed",
+        ),
+        activePatterns: loadedPatterns.filter((p) => p.status !== "integrated"),
+        cognitiveMap: loadedCogMap.sessionsAnalyzed > 0 ? loadedCogMap : null,
+        lastSessionSummary:
+          loadedSessions.length > 0
+            ? loadedSessions[loadedSessions.length - 1].summary
+            : null,
+      };
+
+      setArrivalMessage(generateArrivalMessage(arrivalContext, initialLang));
+
+      // Select optimal approach for this user
+      const approach = selectApproach(
+        loadedCogMap,
+        loadedPatterns,
+        getLocalCalibration(),
+      );
+      setSelectedApproach(approach);
+
+      // Check if user has completed onboarding (has at least 1 session)
+      setHasCompletedOnboarding(loadedSessions.length > 0);
+
       setPhase("landing");
       setTimeout(() => setVis(true), 100);
     };
@@ -1319,6 +1900,26 @@ export default function TheMirrorV3() {
     setSessionEntries(newEntries);
     setDescentPhase("processing");
     setUserResponse("");
+
+    // Emergence detection - check if something shifted in the user's response
+    const previousEntry =
+      sessionEntries.length > 0
+        ? sessionEntries[sessionEntries.length - 1]
+        : null;
+    const currentEntry = newEntries[newEntries.length - 1];
+    const emergence = detectEmergence(previousEntry, currentEntry, patterns);
+    if (emergence) {
+      setCurrentEmergence(emergence);
+      // Clear emergence after 3 seconds
+      setTimeout(() => setCurrentEmergence(null), 3000);
+    }
+
+    // Pattern confrontation check
+    const confrontation = shouldConfrontPattern(
+      patterns,
+      currentLevel,
+      newEntries,
+    );
 
     if (isLastLevel || currentLevel === "core") {
       const sessionData: LocalMirrorSession = {
@@ -1662,26 +2263,90 @@ export default function TheMirrorV3() {
             </div>
 
             <h1 className="mirror-title">{t.title}</h1>
-            <p className="mirror-subtitle">{getTagline()}</p>
+            {/* Use arrival message for returning users, tagline for new users */}
+            <p className="mirror-subtitle">{arrivalMessage || getTagline()}</p>
             <p className="mirror-whisper">{t.tagSub}</p>
 
-            <button
-              onClick={() => {
-                setText("");
-                setUserResponse("");
-                setSessionEntries([]);
-                setCurrentLevel("surface");
-                setCurrentMirrorResponse("");
-                setDescentPhase("showing");
-                setIsCrisis(false);
-                transition("input");
-                setTimeout(() => taRef.current?.focus(), 600);
-              }}
-              className="btn-descend"
-            >
-              {t.beginDescent}
-            </button>
+            {/* Show calibration approach for returning users (dev mode) */}
+            {selectedApproach && sessions.length > 3 && (
+              <p
+                className="calibration-hint"
+                style={{
+                  fontSize: "0.7rem",
+                  color: "var(--light-20)",
+                  marginBottom: "12px",
+                  fontStyle: "italic",
+                }}
+              >
+                Approach: {selectedApproach.approach.replace(/_/g, " ")}
+              </p>
+            )}
+
+            <div className="landing-actions">
+              <button
+                onClick={() => {
+                  setText("");
+                  setUserResponse("");
+                  setSessionEntries([]);
+                  setCurrentLevel("surface");
+                  setCurrentMirrorResponse("");
+                  setDescentPhase("showing");
+                  setIsCrisis(false);
+                  setCurrentEmergence(null);
+                  transition("input");
+                  setTimeout(() => taRef.current?.focus(), 600);
+                }}
+                className="btn-descend"
+              >
+                {t.beginDescent}
+              </button>
+
+              {/* Onboarding button for new users */}
+              {!hasCompletedOnboarding && sessions.length === 0 && (
+                <button
+                  onClick={() => {
+                    setOnboardingStep(0);
+                    setOnboardingAnswers({});
+                    transition("onboarding");
+                  }}
+                  className="btn-ghost"
+                  style={{ marginTop: "12px" }}
+                >
+                  {lang === "es"
+                    ? "Quiero que me conozcas primero"
+                    : "Help me understand myself first"}
+                </button>
+              )}
+            </div>
           </>
+        )}
+
+        {/* ONBOARDING */}
+        {phase === "onboarding" && (
+          <OnboardingView
+            lang={lang}
+            step={onboardingStep}
+            answers={onboardingAnswers}
+            onAnswer={(id, value) => {
+              setOnboardingAnswers((prev) => ({ ...prev, [id]: value }));
+            }}
+            onNext={() => setOnboardingStep((s) => s + 1)}
+            onBack={() => setOnboardingStep((s) => Math.max(0, s - 1))}
+            onSkip={() => {
+              setHasCompletedOnboarding(true);
+              transition("landing");
+            }}
+            onComplete={() => {
+              // Use onboarding answers as the initial offering
+              const combined = Object.values(onboardingAnswers)
+                .filter(Boolean)
+                .join("\n\n");
+              setText(combined);
+              setHasCompletedOnboarding(true);
+              transition("input");
+              setTimeout(() => taRef.current?.focus(), 600);
+            }}
+          />
         )}
 
         {/* INPUT */}
@@ -1901,6 +2566,11 @@ export default function TheMirrorV3() {
         {/* DESCENT */}
         {phase === "descent" && (
           <div className="descent-phase">
+            {/* Emergence Indicator */}
+            {currentEmergence && (
+              <EmergenceIndicator emergence={currentEmergence} lang={lang} />
+            )}
+
             {/* Level Indicator */}
             <div className="level-indicator">
               {(Object.keys(DESCENT_LEVELS) as DescentLevel[]).map((key) => {
