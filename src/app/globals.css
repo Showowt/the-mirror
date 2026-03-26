@@ -1923,6 +1923,91 @@ body {
   50% { opacity: 0.3; }
 }
 
+/* Voice Language Selector */
+.voice-lang-selector {
+  position: relative;
+  margin-top: 12px;
+}
+
+.voice-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--void-elevated);
+  border: 1px solid var(--light-10);
+  border-radius: 20px;
+  color: var(--light-60);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.voice-lang-btn:hover {
+  border-color: var(--light-20);
+  color: var(--light-85);
+}
+
+.voice-lang-flag {
+  font-size: 1.1em;
+}
+
+.voice-lang-label {
+  font-weight: 400;
+}
+
+.voice-lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--void-surface);
+  border: 1px solid var(--light-15);
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 180px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.voice-lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--light-60);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.voice-lang-option:hover {
+  background: var(--light-06);
+  color: var(--light-90);
+}
+
+.voice-lang-option.active {
+  background: var(--surface-glow);
+  color: var(--surface);
+}
+
+.voice-lang-option .voice-lang-flag {
+  font-size: 1.2em;
+}
+
+.voice-lang-option svg {
+  margin-left: auto;
+  color: var(--surface);
+}
+
 /* Voice button in response section (smaller variant) */
 .response-voice-section {
   display: flex;

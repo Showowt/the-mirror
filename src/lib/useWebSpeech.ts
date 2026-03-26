@@ -116,21 +116,38 @@ export function useWebSpeech({
     };
   }, []);
 
-  // Map language codes
+  // Map language codes - 10 most common languages for highest accuracy
   const getLanguageCode = useCallback((lang: string): string => {
     const langMap: Record<string, string> = {
-      auto: "", // Empty string = auto-detect
+      // Auto-detect
+      auto: "",
+      // Top 10 languages with regional variants for best accuracy
       en: "en-US",
+      "en-US": "en-US",
+      "en-GB": "en-GB",
+      "en-AU": "en-AU",
       es: "es-ES",
-      "es-CO": "es-CO",
+      "es-ES": "es-ES",
       "es-MX": "es-MX",
-      fr: "fr-FR",
-      de: "de-DE",
-      pt: "pt-BR",
-      it: "it-IT",
-      ja: "ja-JP",
-      ko: "ko-KR",
+      "es-CO": "es-CO",
+      "es-AR": "es-AR",
       zh: "zh-CN",
+      "zh-CN": "zh-CN", // Mandarin Simplified
+      "zh-TW": "zh-TW", // Mandarin Traditional
+      "zh-HK": "zh-HK", // Cantonese
+      pt: "pt-BR",
+      "pt-BR": "pt-BR",
+      "pt-PT": "pt-PT",
+      hi: "hi-IN", // Hindi
+      ar: "ar-SA", // Arabic
+      fr: "fr-FR",
+      "fr-FR": "fr-FR",
+      "fr-CA": "fr-CA",
+      de: "de-DE",
+      ja: "ja-JP",
+      ru: "ru-RU",
+      ko: "ko-KR",
+      it: "it-IT",
     };
     return langMap[lang] || lang;
   }, []);

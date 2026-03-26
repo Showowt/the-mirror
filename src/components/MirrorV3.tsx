@@ -991,6 +991,27 @@ export default function TheMirrorV3() {
   const seeingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasSynced = useRef(false);
 
+  // Voice language options - 10 most common languages
+  const VOICE_LANGUAGES = [
+    { code: "en-US", label: "English", flag: "🇺🇸" },
+    { code: "es-ES", label: "Español", flag: "🇪🇸" },
+    { code: "zh-CN", label: "中文", flag: "🇨🇳" },
+    { code: "pt-BR", label: "Português", flag: "🇧🇷" },
+    { code: "hi-IN", label: "हिन्दी", flag: "🇮🇳" },
+    { code: "ar-SA", label: "العربية", flag: "🇸🇦" },
+    { code: "fr-FR", label: "Français", flag: "🇫🇷" },
+    { code: "de-DE", label: "Deutsch", flag: "🇩🇪" },
+    { code: "ja-JP", label: "日本語", flag: "🇯🇵" },
+    { code: "ko-KR", label: "한국어", flag: "🇰🇷" },
+  ];
+
+  // Voice language state (separate from UI language)
+  const [voiceLang, setVoiceLang] = useState(() => {
+    // Default based on UI language
+    return lang === "es" ? "es-ES" : "en-US";
+  });
+  const [showVoiceLangPicker, setShowVoiceLangPicker] = useState(false);
+
   // Voice transcription (Web Speech API - free, real-time)
   const [interimText, setInterimText] = useState("");
   const {
@@ -1014,7 +1035,7 @@ export default function TheMirrorV3() {
     onError: (error) => {
       console.error("[Voice] Error:", error);
     },
-    language: lang === "es" ? "es" : "en",
+    language: voiceLang,
     continuous: true,
     interimResults: true,
   });
@@ -1044,13 +1065,17 @@ export default function TheMirrorV3() {
     onError: (error) => {
       console.error("[Voice Response] Error:", error);
     },
-    language: lang === "es" ? "es" : "en",
+    language: voiceLang,
     continuous: true,
     interimResults: true,
   });
 
   const isTranscribingResponse = false;
   const audioLevelResponse = isRecordingResponse ? 50 : 0;
+
+  // Get current voice language info
+  const currentVoiceLang =
+    VOICE_LANGUAGES.find((l) => l.code === voiceLang) || VOICE_LANGUAGES[0];
 
   // Load data
   useEffect(() => {
@@ -1740,6 +1765,70 @@ export default function TheMirrorV3() {
                       : t.tapToSpeak}
                 </span>
               </button>
+
+              {/* Voice Language Selector */}
+              {voiceSupported && (
+                <div className="voice-lang-selector">
+                  <button
+                    onClick={() => setShowVoiceLangPicker(!showVoiceLangPicker)}
+                    className="voice-lang-btn"
+                    type="button"
+                  >
+                    <span className="voice-lang-flag">
+                      {currentVoiceLang.flag}
+                    </span>
+                    <span className="voice-lang-label">
+                      {currentVoiceLang.label}
+                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+
+                  {showVoiceLangPicker && (
+                    <div className="voice-lang-dropdown">
+                      {VOICE_LANGUAGES.map((voiceLangOption) => (
+                        <button
+                          key={voiceLangOption.code}
+                          onClick={() => {
+                            setVoiceLang(voiceLangOption.code);
+                            setShowVoiceLangPicker(false);
+                          }}
+                          className={`voice-lang-option ${voiceLang === voiceLangOption.code ? "active" : ""}`}
+                          type="button"
+                        >
+                          <span className="voice-lang-flag">
+                            {voiceLangOption.flag}
+                          </span>
+                          <span className="voice-lang-label">
+                            {voiceLangOption.label}
+                          </span>
+                          {voiceLang === voiceLangOption.code && (
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <p className="voice-hint">
                 {voiceSupported
                   ? t.speakOrType
