@@ -1817,6 +1817,16 @@ body {
   border-color: var(--pattern);
 }
 
+.voice-btn.unsupported {
+  opacity: 0.3;
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.voice-btn.unsupported .voice-icon {
+  color: var(--light-30);
+}
+
 .voice-btn-inner {
   position: relative;
   width: 100%;
@@ -1925,6 +1935,12 @@ body {
 
 .voice-btn-sm.processing {
   border-color: var(--pattern);
+}
+
+.voice-btn-sm.unsupported {
+  opacity: 0.3;
+  border-style: dashed;
+  cursor: not-allowed;
 }
 
 .voice-btn-sm .voice-icon {

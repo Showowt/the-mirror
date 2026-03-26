@@ -1651,85 +1651,89 @@ export default function TheMirrorV3() {
             <p className="prompt-text">{t.whatCarrying}</p>
 
             {/* Voice Recording Button */}
-            {voiceSupported && (
-              <div className="voice-section">
-                <button
-                  onClick={toggleVoice}
-                  className={`voice-btn ${isRecording ? "recording" : ""} ${isTranscribing ? "processing" : ""}`}
-                  disabled={isTranscribing}
-                >
-                  <div className="voice-btn-inner">
-                    {/* Audio level visualization rings */}
-                    {isRecording && (
-                      <>
-                        <div
-                          className="voice-ring"
-                          style={{
-                            transform: `scale(${1 + audioLevel / 50})`,
-                            opacity: 0.3,
-                          }}
-                        />
-                        <div
-                          className="voice-ring"
-                          style={{
-                            transform: `scale(${1 + audioLevel / 35})`,
-                            opacity: 0.2,
-                          }}
-                        />
-                      </>
+            <div className="voice-section">
+              <button
+                onClick={voiceSupported ? toggleVoice : undefined}
+                className={`voice-btn ${isRecording ? "recording" : ""} ${isTranscribing ? "processing" : ""} ${!voiceSupported ? "unsupported" : ""}`}
+                disabled={isTranscribing || !voiceSupported}
+              >
+                <div className="voice-btn-inner">
+                  {/* Audio level visualization rings */}
+                  {isRecording && (
+                    <>
+                      <div
+                        className="voice-ring"
+                        style={{
+                          transform: `scale(${1 + audioLevel / 50})`,
+                          opacity: 0.3,
+                        }}
+                      />
+                      <div
+                        className="voice-ring"
+                        style={{
+                          transform: `scale(${1 + audioLevel / 35})`,
+                          opacity: 0.2,
+                        }}
+                      />
+                    </>
+                  )}
+                  <div className="voice-icon">
+                    {isTranscribing ? (
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          strokeDasharray="60"
+                          strokeDashoffset="0"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            values="0;-60"
+                            dur="1s"
+                            repeatCount="indefinite"
+                          />
+                        </circle>
+                      </svg>
+                    ) : (
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                        <line x1="12" y1="19" x2="12" y2="22" />
+                      </svg>
                     )}
-                    <div className="voice-icon">
-                      {isTranscribing ? (
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <circle
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            strokeDasharray="60"
-                            strokeDashoffset="0"
-                          >
-                            <animate
-                              attributeName="stroke-dashoffset"
-                              values="0;-60"
-                              dur="1s"
-                              repeatCount="indefinite"
-                            />
-                          </circle>
-                        </svg>
-                      ) : (
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        >
-                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                          <line x1="12" y1="19" x2="12" y2="22" />
-                        </svg>
-                      )}
-                    </div>
                   </div>
-                  <span className="voice-label">
-                    {isTranscribing
-                      ? t.processing
-                      : isRecording
-                        ? t.recording
-                        : t.tapToSpeak}
-                  </span>
-                </button>
-                <p className="voice-hint">{t.speakOrType}</p>
-              </div>
-            )}
+                </div>
+                <span className="voice-label">
+                  {isTranscribing
+                    ? t.processing
+                    : isRecording
+                      ? t.recording
+                      : t.tapToSpeak}
+                </span>
+              </button>
+              <p className="voice-hint">
+                {voiceSupported
+                  ? t.speakOrType
+                  : lang === "es"
+                    ? "Micrófono no disponible"
+                    : "Microphone not available"}
+              </p>
+            </div>
 
             <div className="input-container">
               <textarea
@@ -2134,78 +2138,78 @@ export default function TheMirrorV3() {
             {descentPhase === "showing" && currentLevel !== "core" && (
               <div className="response-container">
                 {/* Voice button for response */}
-                {voiceSupportedResponse && (
-                  <div className="response-voice-section">
-                    <button
-                      onClick={toggleVoiceResponse}
-                      className={`voice-btn-sm ${isRecordingResponse ? "recording" : ""} ${isTranscribingResponse ? "processing" : ""}`}
-                      disabled={isTranscribingResponse}
-                    >
-                      <div className="voice-icon">
-                        {isTranscribingResponse ? (
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
+                <div className="response-voice-section">
+                  <button
+                    onClick={
+                      voiceSupportedResponse ? toggleVoiceResponse : undefined
+                    }
+                    className={`voice-btn-sm ${isRecordingResponse ? "recording" : ""} ${isTranscribingResponse ? "processing" : ""} ${!voiceSupportedResponse ? "unsupported" : ""}`}
+                    disabled={isTranscribingResponse || !voiceSupportedResponse}
+                  >
+                    <div className="voice-icon">
+                      {isTranscribingResponse ? (
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            strokeDasharray="60"
+                            strokeDashoffset="0"
                           >
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              strokeDasharray="60"
-                              strokeDashoffset="0"
-                            >
-                              <animate
-                                attributeName="stroke-dashoffset"
-                                values="0;-60"
-                                dur="1s"
-                                repeatCount="indefinite"
-                              />
-                            </circle>
-                          </svg>
-                        ) : (
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                          >
-                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                            <line x1="12" y1="19" x2="12" y2="22" />
-                          </svg>
-                        )}
-                      </div>
-                    </button>
-                    <span
-                      className={`voice-status ${isRecordingResponse ? "recording" : ""} ${isTranscribingResponse ? "processing" : ""}`}
-                    >
-                      {isTranscribingResponse
-                        ? t.processing
-                        : isRecordingResponse
-                          ? t.recording
-                          : t.tapToSpeak}
-                    </span>
-                    {isRecordingResponse && (
-                      <div className="audio-bars">
-                        {[...Array(5)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="audio-bar"
-                            style={{
-                              height: `${Math.max(4, (audioLevelResponse / 100) * 20 * (0.5 + Math.random() * 0.5))}px`,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+                            <animate
+                              attributeName="stroke-dashoffset"
+                              values="0;-60"
+                              dur="1s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                        </svg>
+                      ) : (
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        >
+                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                          <line x1="12" y1="19" x2="12" y2="22" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                  <span
+                    className={`voice-status ${isRecordingResponse ? "recording" : ""} ${isTranscribingResponse ? "processing" : ""}`}
+                  >
+                    {isTranscribingResponse
+                      ? t.processing
+                      : isRecordingResponse
+                        ? t.recording
+                        : t.tapToSpeak}
+                  </span>
+                  {isRecordingResponse && (
+                    <div className="audio-bars">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="audio-bar"
+                          style={{
+                            height: `${Math.max(4, (audioLevelResponse / 100) * 20 * (0.5 + Math.random() * 0.5))}px`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <textarea
                   value={userResponse}
                   onChange={(e) => setUserResponse(e.target.value)}
