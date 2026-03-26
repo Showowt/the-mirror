@@ -16,18 +16,20 @@ import {
   getProfile,
   saveProfile,
   createDefaultProfile,
-  getSessions,
-  saveSessions,
-  getPatterns,
-  savePatterns,
-  getCognitiveMap,
-  saveCognitiveMap,
+  getSessions as getLocalSessions,
+  saveSessions as saveLocalSessions,
+  getPatterns as getLocalPatterns,
+  savePatterns as saveLocalPatterns,
+  getCognitiveMap as getLocalCognitiveMap,
+  saveCognitiveMap as saveLocalCognitiveMap,
   createDefaultCognitiveMap,
-  getCalibration,
-  saveCalibration,
+  getCalibration as getLocalCalibration,
+  saveCalibration as saveLocalCalibration,
   clearAllData,
   migrateFromV2,
 } from "@/lib/supabase/storage";
+import { useAuth } from "@/lib/supabase/useAuth";
+import * as db from "@/lib/supabase/db";
 
 // ═══════════════════════════════════════════════════════════════
 // THE MIRROR v3 — YOUR SECOND BRAIN
@@ -143,6 +145,20 @@ const T = {
     crisisAction: "call or text 988",
     crisisText: "Crisis Text Line",
     crisisTextAction: "text HOME to 741741",
+    signIn: "Sign In",
+    signUp: "Create Account",
+    signOut: "Sign Out",
+    email: "Email",
+    password: "Password",
+    signInDesc: "Sign in to sync your data across devices",
+    signUpDesc: "Create an account to save your progress",
+    or: "or",
+    magicLink: "Send Magic Link",
+    magicLinkSent: "Check your email for the magic link",
+    syncingData: "Syncing your data...",
+    syncComplete: "Data synced successfully",
+    authError: "Authentication error. Please try again.",
+    accountConnected: "Account connected",
   },
   es: {
     title: "El Espejo",
@@ -199,6 +215,20 @@ const T = {
     crisisAction: "llama al 800-911-2000",
     crisisText: "Línea de Crisis",
     crisisTextAction: "envía un mensaje",
+    signIn: "Iniciar Sesión",
+    signUp: "Crear Cuenta",
+    signOut: "Cerrar Sesión",
+    email: "Correo",
+    password: "Contraseña",
+    signInDesc: "Inicia sesión para sincronizar tus datos",
+    signUpDesc: "Crea una cuenta para guardar tu progreso",
+    or: "o",
+    magicLink: "Enviar Link Mágico",
+    magicLinkSent: "Revisa tu correo para el link mágico",
+    syncingData: "Sincronizando tus datos...",
+    syncComplete: "Datos sincronizados",
+    authError: "Error de autenticación. Intenta de nuevo.",
+    accountConnected: "Cuenta conectada",
   },
 };
 
@@ -467,6 +497,170 @@ function CrisisBar({ lang }: { lang: Lang }) {
   );
 }
 
+// ── Auth Modal ──
+function AuthModal({
+  lang,
+  onClose,
+  onAuthSuccess,
+}: {
+  lang: Lang;
+  onClose: () => void;
+  onAuthSuccess: () => void;
+}) {
+  const t = T[lang];
+  const { signInWithEmail, signUpWithEmail, signInWithMagicLink } = useAuth();
+  const [mode, setMode] = useState<"signin" | "signup" | "magic">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (mode === "magic") {
+        const { error } = await signInWithMagicLink(email);
+        if (error) throw error;
+        setMagicLinkSent(true);
+      } else if (mode === "signin") {
+        const { error } = await signInWithEmail(email, password);
+        if (error) throw error;
+        onAuthSuccess();
+      } else {
+        const { error } = await signUpWithEmail(email, password);
+        if (error) throw error;
+        onAuthSuccess();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.authError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
+      <div className="bg-[#111] border border-[#222] rounded-lg p-8 max-w-md w-full relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-[#666] hover:text-white text-xl"
+        >
+          ×
+        </button>
+
+        <h2 className="font-[Playfair_Display] text-2xl text-white mb-2">
+          {mode === "signup" ? t.signUp : t.signIn}
+        </h2>
+        <p className="font-[Outfit] text-sm text-[#666] mb-6">
+          {mode === "signup" ? t.signUpDesc : t.signInDesc}
+        </p>
+
+        {magicLinkSent ? (
+          <div className="text-center py-8">
+            <div className="text-4xl mb-4">✉️</div>
+            <p className="font-[Outfit] text-[#e0e0e0]">{t.magicLinkSent}</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.email}
+                className="w-full bg-[#0a0a0a] border border-[#333] rounded-md px-4 py-3 text-[#e0e0e0] font-[Outfit] text-sm focus:border-[#666] outline-none"
+                required
+              />
+            </div>
+
+            {mode !== "magic" && (
+              <div className="mb-6">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t.password}
+                  className="w-full bg-[#0a0a0a] border border-[#333] rounded-md px-4 py-3 text-[#e0e0e0] font-[Outfit] text-sm focus:border-[#666] outline-none"
+                  required
+                  minLength={6}
+                />
+              </div>
+            )}
+
+            {error && (
+              <p className="font-[Outfit] text-sm text-red-400 mb-4">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#e0e0e0] text-[#0a0a0a] rounded-md py-3 font-[Outfit] text-sm font-medium hover:bg-white transition-colors disabled:opacity-50"
+            >
+              {loading
+                ? "..."
+                : mode === "magic"
+                  ? t.magicLink
+                  : mode === "signup"
+                    ? t.signUp
+                    : t.signIn}
+            </button>
+          </form>
+        )}
+
+        {!magicLinkSent && (
+          <div className="mt-6 text-center">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-[#333]" />
+              <span className="font-[Outfit] text-xs text-[#555]">{t.or}</span>
+              <div className="flex-1 h-px bg-[#333]" />
+            </div>
+
+            <div className="flex gap-2 justify-center">
+              {mode !== "signin" && (
+                <button
+                  onClick={() => {
+                    setMode("signin");
+                    setError(null);
+                  }}
+                  className="font-[Outfit] text-xs text-[#666] hover:text-white transition-colors"
+                >
+                  {t.signIn}
+                </button>
+              )}
+              {mode !== "signup" && (
+                <button
+                  onClick={() => {
+                    setMode("signup");
+                    setError(null);
+                  }}
+                  className="font-[Outfit] text-xs text-[#666] hover:text-white transition-colors"
+                >
+                  {t.signUp}
+                </button>
+              )}
+              {mode !== "magic" && (
+                <button
+                  onClick={() => {
+                    setMode("magic");
+                    setError(null);
+                  }}
+                  className="font-[Outfit] text-xs text-[#666] hover:text-white transition-colors"
+                >
+                  {t.magicLink}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Vault View ──
 function VaultView({
   sessions,
@@ -474,12 +668,20 @@ function VaultView({
   cogMap,
   lang,
   onBack,
+  isAuthenticated,
+  userEmail,
+  onSignIn,
+  onSignOut,
 }: {
   sessions: LocalMirrorSession[];
   patterns: LocalMirrorPattern[];
   cogMap: LocalCognitiveMap;
   lang: Lang;
   onBack: () => void;
+  isAuthenticated: boolean;
+  userEmail?: string;
+  onSignIn: () => void;
+  onSignOut: () => void;
 }) {
   const t = T[lang];
   const totalDescents = sessions.length;
@@ -664,7 +866,39 @@ function VaultView({
           )}
         </div>
 
-        <div className="text-center mt-16 pb-10">
+        {/* Account Section */}
+        <div className="mb-10 pt-10 border-t border-[#222]">
+          {isAuthenticated ? (
+            <div className="bg-[#111] border border-[#222] rounded-lg p-5 flex justify-between items-center">
+              <div>
+                <p className="font-[Outfit] text-sm text-[#e0e0e0]">
+                  {t.accountConnected}
+                </p>
+                <p className="font-[Outfit] text-xs text-[#555]">{userEmail}</p>
+              </div>
+              <button
+                onClick={onSignOut}
+                className="bg-transparent border border-[#333] rounded-md text-[#666] cursor-pointer px-4 py-2 font-[Outfit] text-xs hover:border-[#666] hover:text-[#999] transition-colors"
+              >
+                {t.signOut}
+              </button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="font-[Outfit] text-sm text-[#666] mb-4">
+                {t.signInDesc}
+              </p>
+              <button
+                onClick={onSignIn}
+                className="bg-[#e0e0e0] border-none rounded-md text-[#0a0a0a] cursor-pointer px-8 py-3 font-[Outfit] text-sm font-medium hover:bg-white transition-colors"
+              >
+                {t.signIn}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="text-center mt-8 pb-10">
           <button
             onClick={() => {
               if (confirm(t.resetConfirm)) {
@@ -684,6 +918,8 @@ function VaultView({
 
 // ── Main App ──
 export default function TheMirrorV3() {
+  const { user, loading: authLoading, isAuthenticated, signOut } = useAuth();
+
   const [phase, setPhase] = useState<Phase>("loading");
   const [vis, setVis] = useState(false);
   const [lang, setLang] = useState<Lang>("en");
@@ -691,6 +927,8 @@ export default function TheMirrorV3() {
   const [seeingIdx, setSeeingIdx] = useState(0);
   const [seeingFade, setSeeingFade] = useState(true);
   const [isCrisis, setIsCrisis] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   // Descent state
   const [currentLevel, setCurrentLevel] = useState<DescentLevel>("surface");
@@ -710,9 +948,12 @@ export default function TheMirrorV3() {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const respRef = useRef<HTMLTextAreaElement>(null);
   const seeingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasSynced = useRef(false);
 
   // Load persistent data
   useEffect(() => {
+    if (authLoading) return;
+
     // Detect language
     const browserLang = navigator.language?.startsWith("es") ? "es" : "en";
     setLang(browserLang);
@@ -720,20 +961,155 @@ export default function TheMirrorV3() {
     // Try migration first
     migrateFromV2();
 
-    // Load data
-    const existingProfile = getProfile();
-    if (!existingProfile) {
-      saveProfile(createDefaultProfile());
-    }
+    const loadData = async () => {
+      if (isAuthenticated && user) {
+        // Authenticated user - load from Supabase
+        try {
+          // Ensure profile exists
+          await db.getOrCreateProfile(user.id, browserLang);
 
-    setSessions(getSessions());
-    setPatterns(getPatterns());
-    setCogMap(getCognitiveMap());
-    setCalibration(getCalibration());
+          // Sync localStorage to Supabase on first auth
+          if (!hasSynced.current) {
+            hasSynced.current = true;
+            const localSessions = getLocalSessions();
+            const localPatterns = getLocalPatterns();
+            const localCogMap = getLocalCognitiveMap();
 
-    setPhase("landing");
-    setTimeout(() => setVis(true), 100);
-  }, []);
+            if (
+              localSessions.length > 0 ||
+              localPatterns.length > 0 ||
+              localCogMap.sessionsAnalyzed > 0
+            ) {
+              setSyncing(true);
+              await db.syncFromLocalStorage(
+                user.id,
+                localSessions,
+                localPatterns,
+                localCogMap,
+              );
+              // Clear local storage after sync
+              clearAllData();
+              setSyncing(false);
+            }
+          }
+
+          // Load from Supabase
+          const dbSessions = await db.getSessions(user.id);
+          const dbPatterns = await db.getPatterns(user.id);
+          const dbCogMap = await db.getCognitiveMap(user.id);
+          const dbCalibration = await db.getCalibration(user.id);
+
+          // Convert DB sessions to local format
+          const localFormatSessions: LocalMirrorSession[] = dbSessions.map(
+            (s: {
+              id: string;
+              started_at: string;
+              ended_at: string | null;
+              initial_offering: string;
+              deepest_level: string;
+              session_summary: string | null;
+              primary_blind_spot: string | null;
+            }) => ({
+              id: s.id,
+              startedAt: s.started_at,
+              endedAt: s.ended_at || undefined,
+              offering: s.initial_offering,
+              deepestLevel: s.deepest_level as DescentLevel,
+              entries: [],
+              summary: s.session_summary || null,
+              primaryBlindSpot:
+                s.primary_blind_spot as BlindSpotCategory | null,
+            }),
+          );
+
+          // Convert DB patterns to local format
+          const localFormatPatterns: LocalMirrorPattern[] = dbPatterns.map(
+            (p: {
+              pattern_name: string;
+              pattern_description: string;
+              blind_spot_category: string | null;
+              occurrence_count: number;
+              status: string;
+              first_detected_at: string;
+              last_seen_at: string;
+            }) => ({
+              name: p.pattern_name,
+              description: p.pattern_description,
+              category: p.blind_spot_category as BlindSpotCategory | null,
+              occurrences: p.occurrence_count,
+              status: p.status as
+                | "emerging"
+                | "confirmed"
+                | "acknowledged"
+                | "integrated",
+              firstDetected: p.first_detected_at,
+              lastSeen: p.last_seen_at,
+            }),
+          );
+
+          // Convert DB cognitive map to local format
+          const localFormatCogMap: LocalCognitiveMap = dbCogMap
+            ? {
+                intellectualizer: dbCogMap.intellectualizer_score || 50,
+                externalizer: dbCogMap.externalizer_score || 50,
+                agencyScore: dbCogMap.agency_score || 50,
+                depthTolerance: dbCogMap.depth_tolerance_score || 50,
+                primaryDefense:
+                  (dbCogMap.primary_defense as ResponseBehavior) || null,
+                tendencies: dbCogMap.opening_topics || [],
+                sessionsAnalyzed: dbCogMap.sessions_analyzed || 0,
+                confidence: dbCogMap.confidence_score || 0,
+              }
+            : createDefaultCognitiveMap();
+
+          // Convert calibration
+          const localFormatCalibration: LocalCalibration = {};
+          dbCalibration.forEach(
+            (c: {
+              approach: string;
+              times_used: number;
+              effectiveness_score: number;
+              avg_depth_reached: number;
+            }) => {
+              localFormatCalibration[c.approach] = {
+                uses: c.times_used,
+                effectiveness: c.effectiveness_score,
+                depth: c.avg_depth_reached || 0,
+              };
+            },
+          );
+
+          setSessions(localFormatSessions);
+          setPatterns(localFormatPatterns);
+          setCogMap(localFormatCogMap);
+          setCalibration(localFormatCalibration);
+        } catch (err) {
+          console.error("[Mirror] Error loading from Supabase:", err);
+          // Fall back to localStorage
+          setSessions(getLocalSessions());
+          setPatterns(getLocalPatterns());
+          setCogMap(getLocalCognitiveMap());
+          setCalibration(getLocalCalibration());
+        }
+      } else {
+        // Anonymous user - use localStorage
+        const existingProfile = getProfile();
+        if (!existingProfile) {
+          saveProfile(createDefaultProfile());
+        }
+
+        setSessions(getLocalSessions());
+        setPatterns(getLocalPatterns());
+        setCogMap(getLocalCognitiveMap());
+        setCalibration(getLocalCalibration());
+      }
+
+      setPhase("landing");
+      setTimeout(() => setVis(true), 100);
+    };
+
+    loadData();
+  }, [authLoading, isAuthenticated, user]);
 
   // Seeing animation
   useEffect(() => {
@@ -887,7 +1263,19 @@ export default function TheMirrorV3() {
           });
         }
         setPatterns(updatedPatterns);
-        savePatterns(updatedPatterns);
+
+        // Save patterns to storage
+        if (isAuthenticated && user) {
+          await db.upsertPattern(
+            user.id,
+            analysis.patternName,
+            analysis.patternDescription,
+            analysis.primaryBlindSpot,
+            sessionData.id,
+          );
+        } else {
+          saveLocalPatterns(updatedPatterns);
+        }
 
         // Update cognitive map
         if (analysis.cognitiveUpdates) {
@@ -931,7 +1319,21 @@ export default function TheMirrorV3() {
             Math.floor((updated.sessionsAnalyzed / 20) * 100),
           );
           setCogMap(updated);
-          saveCognitiveMap(updated);
+
+          // Save cognitive map to storage
+          if (isAuthenticated && user) {
+            await db.updateCognitiveMap(user.id, {
+              intellectualizer_score: updated.intellectualizer,
+              externalizer_score: updated.externalizer,
+              agency_score: updated.agencyScore,
+              depth_tolerance_score: updated.depthTolerance,
+              primary_defense: updated.primaryDefense || undefined,
+              sessions_analyzed: updated.sessionsAnalyzed,
+              confidence_score: updated.confidence,
+            });
+          } else {
+            saveLocalCognitiveMap(updated);
+          }
         }
 
         sessionData.summary = analysis.sessionSummary;
@@ -941,9 +1343,48 @@ export default function TheMirrorV3() {
       // Save session
       sessionData.entries = newEntries;
       sessionData.deepestLevel = currentLevel;
+
+      // Save to storage
+      if (isAuthenticated && user) {
+        const dbSession = await db.createSession(
+          user.id,
+          sessionData.offering,
+          isCrisis,
+        );
+        if (dbSession) {
+          // Save entries
+          for (let i = 0; i < newEntries.length; i++) {
+            const entry = newEntries[i];
+            await db.createEntry(
+              dbSession.id,
+              user.id,
+              entry.type as
+                | "offering"
+                | "question"
+                | "response"
+                | "observation"
+                | "pattern_reveal",
+              entry.level,
+              i,
+              entry.content,
+            );
+          }
+          // Update session with final data
+          await db.updateSession(dbSession.id, {
+            ended_at: now,
+            deepest_level: currentLevel,
+            total_entries: newEntries.length,
+            session_summary: sessionData.summary || undefined,
+            primary_blind_spot: sessionData.primaryBlindSpot || undefined,
+          });
+          sessionData.id = dbSession.id;
+        }
+      } else {
+        saveLocalSessions([...sessions, sessionData]);
+      }
+
       const updatedSessions = [...sessions, sessionData];
       setSessions(updatedSessions);
-      saveSessions(updatedSessions);
 
       // Update profile
       const profile = getProfile() || createDefaultProfile();
@@ -989,6 +1430,9 @@ export default function TheMirrorV3() {
     patterns,
     calibration,
     sessions,
+    isAuthenticated,
+    user,
+    isCrisis,
   ]);
 
   const t = T[lang];
@@ -1004,19 +1448,48 @@ export default function TheMirrorV3() {
 
   // ── RENDER ──
 
-  if (phase === "loading") {
+  if (phase === "loading" || authLoading) {
     return <div className="min-h-screen bg-[#0a0a0a]" />;
+  }
+
+  if (syncing) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-2 border-[#222] border-t-[#666] rounded-full mx-auto mb-8 animate-spin" />
+        <p className="font-[Outfit] text-sm text-[#666]">{t.syncingData}</p>
+      </div>
+    );
   }
 
   if (phase === "vault") {
     return (
-      <VaultView
-        sessions={sessions}
-        patterns={patterns}
-        cogMap={cogMap}
-        lang={lang}
-        onBack={() => transition("landing")}
-      />
+      <>
+        <VaultView
+          sessions={sessions}
+          patterns={patterns}
+          cogMap={cogMap}
+          lang={lang}
+          onBack={() => transition("landing")}
+          isAuthenticated={isAuthenticated}
+          userEmail={user?.email}
+          onSignIn={() => setShowAuthModal(true)}
+          onSignOut={async () => {
+            await signOut();
+            // Reload to reset state
+            window.location.reload();
+          }}
+        />
+        {showAuthModal && (
+          <AuthModal
+            lang={lang}
+            onClose={() => setShowAuthModal(false)}
+            onAuthSuccess={() => {
+              setShowAuthModal(false);
+              // Data will reload via useEffect
+            }}
+          />
+        )}
+      </>
     );
   }
 
