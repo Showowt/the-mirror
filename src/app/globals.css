@@ -706,7 +706,208 @@ body {
 .btn-deeper[data-level="origin"] { border-color: var(--origin); color: var(--origin); }
 .btn-deeper[data-level="core"] { border-color: var(--core); color: var(--core); }
 
-/* Completion */
+/* ═══ THE AWAKENING — Completion Moment ═══ */
+
+@keyframes revelationGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes breatheDeep {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeInSlow {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.awakening-phase {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0 60px;
+}
+
+/* The Revelation Card */
+.revelation-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 48px;
+  animation: fadeInSlow 1.2s var(--ease-out-expo) both;
+}
+
+.revelation-glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(ellipse at center, var(--core-glow) 0%, transparent 70%);
+  animation: revelationGlow 4s var(--ease-in-out-sine) infinite;
+  pointer-events: none;
+}
+
+.revelation-content {
+  position: relative;
+  background: var(--void-elevated);
+  border: 1px solid var(--core);
+  border-radius: 2px;
+  padding: 48px 40px;
+  box-shadow:
+    0 0 80px -20px var(--core-glow),
+    inset 0 1px 0 var(--light-04);
+}
+
+.revelation-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--core);
+  margin-bottom: 20px;
+}
+
+.revelation-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--light-100);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Breathing Space */
+.awakening-breath {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 40px;
+  animation: fadeInSlow 1.5s var(--ease-out-expo) 0.3s both;
+}
+
+.breath-circle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--light-15);
+  animation: breatheDeep 6s var(--ease-in-out-sine) infinite;
+}
+
+.breath-circle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--light-30);
+  transform: translate(-50%, -50%);
+}
+
+/* Session Summary */
+.awakening-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  padding: 24px 0;
+  animation: fadeInSlow 1.5s var(--ease-out-expo) 0.5s both;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--light-80);
+}
+
+.summary-label {
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--light-30);
+}
+
+.summary-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--light-08);
+}
+
+/* The Message */
+.awakening-message {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--light-40);
+  line-height: 1.8;
+  max-width: 400px;
+  margin-bottom: 40px;
+  animation: fadeInSlow 1.5s var(--ease-out-expo) 0.7s both;
+}
+
+/* Actions */
+.awakening-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 32px;
+  animation: fadeInSlow 1.5s var(--ease-out-expo) 0.9s both;
+}
+
+.awakening-actions .btn-descend {
+  border-color: var(--core);
+  color: var(--core);
+}
+
+.awakening-actions .btn-descend:hover {
+  background: var(--core-glow);
+  box-shadow: 0 0 40px -10px var(--core);
+}
+
+/* Timestamp */
+.awakening-timestamp {
+  font-size: 0.65rem;
+  font-weight: 300;
+  color: var(--light-20);
+  letter-spacing: 0.1em;
+  animation: fadeInSlow 1.5s var(--ease-out-expo) 1.1s both;
+}
+
+/* Legacy styles for backwards compatibility */
 .descent-complete {
   text-align: center;
   padding: 40px 0;
@@ -724,6 +925,25 @@ body {
   display: flex;
   gap: 16px;
   justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .revelation-content {
+    padding: 36px 24px;
+  }
+
+  .awakening-summary {
+    gap: 16px;
+  }
+
+  .summary-value {
+    font-size: 1.25rem;
+  }
+
+  .awakening-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* ═══ THE VAULT — Your Psychological Archive ═══ */

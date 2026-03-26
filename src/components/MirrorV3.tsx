@@ -26,6 +26,8 @@ import {
   getCalibration as getLocalCalibration,
   clearAllData,
   migrateFromV2,
+  getLanguage,
+  saveLanguage,
 } from "@/lib/supabase/storage";
 import { useAuth } from "@/lib/supabase/useAuth";
 import { useWhisperVoice } from "@/lib/useWhisperVoice";
@@ -1025,8 +1027,17 @@ export default function TheMirrorV3() {
   useEffect(() => {
     if (authLoading) return;
 
+    // Load language: 1) from storage, 2) from browser, 3) default to 'en'
+    const storedLang = getLanguage();
     const browserLang = navigator.language?.startsWith("es") ? "es" : "en";
-    setLang(browserLang);
+    const initialLang = storedLang || browserLang;
+    setLang(initialLang);
+
+    // Save if not already stored
+    if (!storedLang) {
+      saveLanguage(initialLang);
+    }
+
     migrateFromV2();
 
     const loadData = async () => {
@@ -1553,7 +1564,11 @@ export default function TheMirrorV3() {
 
       {/* Language Toggle */}
       <button
-        onClick={() => setLang(lang === "en" ? "es" : "en")}
+        onClick={() => {
+          const newLang = lang === "en" ? "es" : "en";
+          setLang(newLang);
+          saveLanguage(newLang);
+        }}
         className="lang-toggle"
       >
         {lang === "en" ? "ES" : "EN"}
@@ -1822,11 +1837,66 @@ export default function TheMirrorV3() {
               </div>
             )}
 
-            {/* Complete */}
+            {/* Complete — The Awakening Moment */}
             {descentPhase === "complete" && (
-              <div className="descent-complete">
-                <p className="complete-message">{t.complete}</p>
-                <div className="complete-actions">
+              <div className="awakening-phase fade-in">
+                {/* The Revelation */}
+                <div className="revelation-container">
+                  <div className="revelation-glow" />
+                  <div className="revelation-content">
+                    <span className="revelation-label">
+                      {lang === "es"
+                        ? "Lo que El Espejo vio"
+                        : "What The Mirror saw"}
+                    </span>
+                    <p className="revelation-text">{currentMirrorResponse}</p>
+                  </div>
+                </div>
+
+                {/* Breathing Space */}
+                <div className="awakening-breath">
+                  <div className="breath-circle" />
+                </div>
+
+                {/* Session Summary */}
+                <div className="awakening-summary">
+                  <div className="summary-stat">
+                    <span className="summary-value">
+                      {lang === "es"
+                        ? DESCENT_LEVELS[currentLevel]?.nameEs
+                        : DESCENT_LEVELS[currentLevel]?.name}
+                    </span>
+                    <span className="summary-label">
+                      {lang === "es" ? "Nivel alcanzado" : "Depth reached"}
+                    </span>
+                  </div>
+                  <div className="summary-divider" />
+                  <div className="summary-stat">
+                    <span className="summary-value">
+                      {sessionEntries.length}
+                    </span>
+                    <span className="summary-label">
+                      {lang === "es" ? "Intercambios" : "Exchanges"}
+                    </span>
+                  </div>
+                  <div className="summary-divider" />
+                  <div className="summary-stat">
+                    <span className="summary-value">{sessions.length + 1}</span>
+                    <span className="summary-label">
+                      {lang === "es" ? "Descenso total" : "Total descents"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* The Moment */}
+                <p className="awakening-message">
+                  {lang === "es"
+                    ? "Este momento ha sido guardado. Lo que fue visto no puede ser desvisto."
+                    : "This moment has been saved. What was seen cannot be unseen."}
+                </p>
+
+                {/* Actions */}
+                <div className="awakening-actions">
                   <button
                     onClick={() => {
                       setSessionEntries([]);
@@ -1838,15 +1908,35 @@ export default function TheMirrorV3() {
                     }}
                     className="btn-ghost"
                   >
-                    {t.return}
+                    {lang === "es"
+                      ? "Volver a la superficie"
+                      : "Return to surface"}
                   </button>
                   <button
                     onClick={() => transition("vault")}
                     className="btn-descend"
+                    data-level={currentLevel}
                   >
-                    {t.openVault}
+                    {lang === "es"
+                      ? "Ver todos mis patrones"
+                      : "See all my patterns"}
                   </button>
                 </div>
+
+                {/* Timestamp */}
+                <p className="awakening-timestamp">
+                  {new Date().toLocaleDateString(
+                    lang === "es" ? "es-CO" : "en-US",
+                    {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
+                </p>
               </div>
             )}
 

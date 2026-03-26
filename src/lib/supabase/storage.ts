@@ -17,7 +17,36 @@ const STORAGE_KEYS = {
   patterns: "mirror:patterns:v3",
   cognitiveMap: "mirror:cognitive_map:v3",
   calibration: "mirror:calibration:v3",
+  language: "mirror:language:v3",
 } as const;
+
+// ─── LANGUAGE PREFERENCE ─────────────────────────────────────────
+
+export function getLanguage(): "en" | "es" | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.language);
+    if (data === "en" || data === "es") return data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveLanguage(lang: "en" | "es"): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEYS.language, lang);
+    // Also update profile
+    const profile = getProfile();
+    if (profile) {
+      profile.language = lang;
+      saveProfile(profile);
+    }
+  } catch {
+    console.error("[Mirror] Failed to save language");
+  }
+}
 
 // ─── PROFILE ────────────────────────────────────────────────────
 
