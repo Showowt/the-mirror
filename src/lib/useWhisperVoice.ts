@@ -33,7 +33,7 @@ export function useWhisperVoice({
 }: UseWhisperVoiceOptions): UseWhisperVoiceResult {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
+  const [isSupported, setIsSupported] = useState(false); // Start false, set true after client check
   const [audioLevel, setAudioLevel] = useState(0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -47,16 +47,28 @@ export function useWhisperVoice({
   );
   const lastAudioTimeRef = useRef<number>(Date.now());
 
-  // Check support on mount
+  // Check support on mount (client-side only)
   useEffect(() => {
-    const checkSupport = async () => {
+    // Only run on client
+    if (typeof window === "undefined") return;
+
+    const checkSupport = () => {
       try {
         const hasMediaDevices = !!(
-          navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+          typeof navigator !== "undefined" &&
+          navigator.mediaDevices &&
+          navigator.mediaDevices.getUserMedia
         );
         const hasMediaRecorder = typeof MediaRecorder !== "undefined";
-        setIsSupported(hasMediaDevices && hasMediaRecorder);
-      } catch {
+        const supported = hasMediaDevices && hasMediaRecorder;
+        console.log("[Voice] Support check:", {
+          hasMediaDevices,
+          hasMediaRecorder,
+          supported,
+        });
+        setIsSupported(supported);
+      } catch (e) {
+        console.error("[Voice] Support check failed:", e);
         setIsSupported(false);
       }
     };
