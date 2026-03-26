@@ -1222,6 +1222,8 @@ textarea:focus-visible {
   width: 100%;
   max-width: 760px;
   padding: 60px 0;
+  /* Add right padding to prevent overlap with fixed language toggle */
+  padding-right: 80px;
   text-align: left;
 }
 
@@ -1962,6 +1964,23 @@ input, textarea, select {
     padding-top: max(16px, env(safe-area-inset-top));
   }
 
+  /* Vault - prevent overlap with language toggle */
+  .vault-phase {
+    padding-right: 20px;
+    padding-top: 80px; /* Space for lang toggle */
+  }
+
+  .vault-section-title {
+    padding-right: 60px; /* Prevent text from going under lang toggle */
+  }
+
+  .lang-toggle {
+    top: 16px;
+    right: 16px;
+    padding: 10px 14px;
+    font-size: 0.6rem;
+  }
+
   /* Larger touch targets on mobile */
   .btn-descend {
     padding: 20px 48px;
@@ -2652,6 +2671,24 @@ input, textarea, select {
 
   .vault-stat-value {
     font-size: 2rem;
+  }
+
+  /* Extra small - more space for lang toggle */
+  .vault-phase {
+    padding-top: 72px;
+    padding-right: 16px;
+  }
+
+  .vault-section-title {
+    font-size: 1.25rem;
+    padding-right: 50px;
+  }
+
+  .lang-toggle {
+    top: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    font-size: 0.55rem;
   }
 
   .onboarding-question {
