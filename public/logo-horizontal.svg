@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="120" viewBox="0 0 600 120">
+  <rect width="600" height="120" fill="#0A0A0A"/>
+
+  <!-- Icon -->
+  <circle cx="60" cy="60" r="40" fill="#0E0E0E"/>
+  <path d="M60 20 L59 35 L61 44 L58 55 L62 62 L60 68 L58 78 L62 88 L59 96 L60 100" stroke="#C9A84C" stroke-width="6" fill="none" opacity="0.15" stroke-linecap="round"/>
+  <path d="M60 20 L59 35 L61 44 L58 55 L62 62 L60 68 L58 78 L62 88 L59 96 L60 100" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+  <path d="M60 20 L59 35 L61 44 L58 55 L62 62 L60 68 L58 78 L62 88 L59 96 L60 100" stroke="#FFF8E1" stroke-width="0.6" fill="none" opacity="0.45" stroke-linecap="round"/>
+  <path d="M58 55 L48 50 L40 48" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <path d="M62 62 L72 59 L80 61" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="40" fill="none" stroke="#C9A84C" stroke-width="0.4" opacity="0.25"/>
+
+  <!-- Text -->
+  <text x="120" y="48" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="300" letter-spacing="6" fill="#666666">THE</text>
+  <text x="120" y="78" font-family="Georgia, Times New Roman, serif" font-size="36" font-weight="400" letter-spacing="5" fill="#E0E0E0">MIRROR</text>
+
+  <!-- Tagline right-aligned -->
+  <text x="560" y="64" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" font-weight="300" letter-spacing="3" fill="#444444">SEE WHAT YOU CAN'T SEE</text>
+</svg>

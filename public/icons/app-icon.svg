@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#0A0A0A"/>
+  <circle cx="512" cy="512" r="420" fill="#0A0A0A"/>
+  <circle cx="512" cy="512" r="400" fill="#0F0F0F"/>
+  <clipPath id="mc"><circle cx="512" cy="512" r="400"/></clipPath>
+  <g clip-path="url(#mc)">
+    <path d="M512 112 L509 232 L515 292 L506 392 L518 462 L512 512 L506 562 L518 642 L509 722 L515 812 L512 912" stroke="#C9A84C" stroke-width="18" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M512 112 L509 232 L515 292 L506 392 L518 462 L512 512 L506 562 L518 642 L509 722 L515 812 L512 912" stroke="#C9A84C" stroke-width="8" fill="none" opacity="0.35" stroke-linecap="round"/>
+    <path d="M512 112 L509 232 L515 292 L506 392 L518 462 L512 512 L506 562 L518 642 L509 722 L515 812 L512 912" stroke="#C9A84C" stroke-width="3.5" fill="none" opacity="0.9" stroke-linecap="round"/>
+    <path d="M512 112 L509 232 L515 292 L506 392 L518 462 L512 512 L506 562 L518 642 L509 722 L515 812 L512 912" stroke="#FFF8E1" stroke-width="1.2" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <path d="M509 292 L482 270 L448 260" stroke="#C9A84C" stroke-width="6" fill="none" opacity="0.2" stroke-linecap="round"/>
+    <path d="M509 292 L482 270 L448 260" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+    <path d="M515 292 L540 278 L568 274" stroke="#C9A84C" stroke-width="6" fill="none" opacity="0.2" stroke-linecap="round"/>
+    <path d="M515 292 L540 278 L568 274" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+    <path d="M506 512 L466 504 L426 514 L392 506" stroke="#C9A84C" stroke-width="7" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M506 512 L466 504 L426 514 L392 506" stroke="#C9A84C" stroke-width="2.8" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <path d="M506 512 L466 504 L426 514 L392 506" stroke="#FFF8E1" stroke-width="0.8" fill="none" opacity="0.35" stroke-linecap="round"/>
+    <path d="M518 512 L558 520 L598 510 L632 518" stroke="#C9A84C" stroke-width="7" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M518 512 L558 520 L598 510 L632 518" stroke="#C9A84C" stroke-width="2.8" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <path d="M518 512 L558 520 L598 510 L632 518" stroke="#FFF8E1" stroke-width="0.8" fill="none" opacity="0.35" stroke-linecap="round"/>
+    <path d="M506 642 L476 656 L446 648" stroke="#C9A84C" stroke-width="4" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M506 642 L476 656 L446 648" stroke="#C9A84C" stroke-width="1.6" fill="none" opacity="0.5" stroke-linecap="round"/>
+    <path d="M518 642 L548 654 L580 646" stroke="#C9A84C" stroke-width="4" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M518 642 L548 654 L580 646" stroke="#C9A84C" stroke-width="1.6" fill="none" opacity="0.5" stroke-linecap="round"/>
+    <path d="M448 260 L430 252" stroke="#C9A84C" stroke-width="1.2" fill="none" opacity="0.35" stroke-linecap="round"/>
+    <path d="M392 506 L374 498" stroke="#C9A84C" stroke-width="1.2" fill="none" opacity="0.3" stroke-linecap="round"/>
+    <path d="M632 518 L650 524" stroke="#C9A84C" stroke-width="1.2" fill="none" opacity="0.3" stroke-linecap="round"/>
+  </g>
+  <circle cx="512" cy="512" r="416" fill="none" stroke="#C9A84C" stroke-width="0.8" opacity="0.35"/>
+  <circle cx="512" cy="512" r="400" fill="none" stroke="#C9A84C" stroke-width="0.4" opacity="0.2"/>
+</svg>

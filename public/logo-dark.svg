@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <rect width="1200" height="600" fill="#0A0A0A"/>
+
+  <!-- Icon mark -->
+  <circle cx="280" cy="280" r="130" fill="#0A0A0A"/>
+  <circle cx="280" cy="280" r="122" fill="#0E0E0E"/>
+  <path d="M280 158 L278 200 L282 225 L276 260 L284 280 L280 300 L276 325 L284 355 L278 385 L280 402" stroke="#C9A84C" stroke-width="10" fill="none" opacity="0.15" stroke-linecap="round"/>
+  <path d="M280 158 L278 200 L282 225 L276 260 L284 280 L280 300 L276 325 L284 355 L278 385 L280 402" stroke="#C9A84C" stroke-width="3.5" fill="none" opacity="0.7" stroke-linecap="round"/>
+  <path d="M280 158 L278 200 L282 225 L276 260 L284 280 L280 300 L276 325 L284 355 L278 385 L280 402" stroke="#FFF8E1" stroke-width="1" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <path d="M276 260 L258 250 L240 246" stroke="#C9A84C" stroke-width="2.2" fill="none" opacity="0.6" stroke-linecap="round"/>
+  <path d="M284 280 L302 274 L320 278" stroke="#C9A84C" stroke-width="2.2" fill="none" opacity="0.6" stroke-linecap="round"/>
+  <path d="M276 325 L256 320 L238 326" stroke="#C9A84C" stroke-width="1.6" fill="none" opacity="0.45" stroke-linecap="round"/>
+  <path d="M284 355 L304 360 L322 354" stroke="#C9A84C" stroke-width="1.6" fill="none" opacity="0.45" stroke-linecap="round"/>
+  <circle cx="280" cy="280" r="130" fill="none" stroke="#C9A84C" stroke-width="0.6" opacity="0.3"/>
+
+  <!-- Wordmark -->
+  <text x="680" y="210" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="300" letter-spacing="12" fill="#888888">THE</text>
+  <text x="680" y="305" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-size="96" font-weight="400" letter-spacing="10" fill="#E0E0E0">MIRROR</text>
+
+  <!-- Fracture through wordmark -->
+  <path d="M830 220 L827 250 L832 275 L828 305 L831 330 L827 360" stroke="#C9A84C" stroke-width="5" fill="none" opacity="0.12" stroke-linecap="round"/>
+  <path d="M830 220 L827 250 L832 275 L828 305 L831 330 L827 360" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <path d="M830 220 L827 250 L832 275 L828 305 L831 330 L827 360" stroke="#FFF8E1" stroke-width="0.6" fill="none" opacity="0.3" stroke-linecap="round"/>
+
+  <!-- Tagline -->
+  <text x="680" y="370" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="16" font-weight="300" letter-spacing="6" fill="#555555">SEE WHAT YOU CAN'T SEE</text>
+
+  <!-- Divider -->
+  <line x1="580" y1="400" x2="780" y2="400" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Attribution -->
+  <text x="680" y="430" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="300" letter-spacing="5" fill="#333333">MACHINEMIND</text>
+
+  <!-- Bottom credit -->
+  <text x="600" y="560" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" font-weight="300" letter-spacing="3" fill="#222222">BUILT BY PHIL MCGILL</text>
+</svg>
