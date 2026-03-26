@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   title: "The Mirror — See What You Can't See",
   description:
     "Tell me what you're carrying. I won't help you. I'll ask you the one question you're not asking yourself. A sacred space for self-reflection.",
-  metadataBase: new URL("https://the-mirror-eight.vercel.app"),
+  metadataBase: new URL("https://www.beginyourdescent.com"),
   keywords: [
     "self-reflection",
     "AI mirror",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "The Mirror",
     locale: "en_US",
-    url: "https://the-mirror-eight.vercel.app",
+    url: "https://www.beginyourdescent.com",
     images: [
       {
         url: "/og-image.png",
@@ -132,7 +132,7 @@ export default function RootLayout({
         {/* Telegram & Messaging Apps */}
         <meta
           property="og:image:secure_url"
-          content="https://the-mirror-eight.vercel.app/og-image.png"
+          content="https://www.beginyourdescent.com/og-image.png"
         />
         <meta name="telegram:channel" content="@themirrorai" />
         {/* WhatsApp Preview */}
