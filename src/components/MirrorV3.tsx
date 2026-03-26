@@ -49,20 +49,24 @@ type DescentPhase = "showing" | "responding" | "processing" | "complete";
 
 const SEEING_MESSAGES = {
   en: [
-    "Reading between your words",
-    "Finding the shape of your perspective",
-    "Looking for what you can't see",
-    "Locating the blind spot",
-    "Tracing the frame you're inside",
-    "Mapping what your certainty hides",
+    "Listening for what you didn't say",
+    "Finding where you've hidden yourself",
+    "Looking past the story you tell",
+    "Sensing what your words are protecting",
+    "Tracing the shape of your silence",
+    "Noticing where you stop yourself",
+    "Finding the question you won't ask",
+    "Seeing the pattern you've been living",
   ],
   es: [
-    "Leyendo entre tus palabras",
-    "Encontrando la forma de tu perspectiva",
-    "Buscando lo que no puedes ver",
-    "Localizando el punto ciego",
-    "Rastreando el marco en el que estás",
-    "Mapeando lo que tu certeza oculta",
+    "Escuchando lo que no dijiste",
+    "Encontrando dónde te escondiste",
+    "Mirando más allá de tu historia",
+    "Sintiendo lo que protegen tus palabras",
+    "Rastreando la forma de tu silencio",
+    "Notando dónde te detienes",
+    "Encontrando la pregunta que no haces",
+    "Viendo el patrón que has estado viviendo",
   ],
 };
 
@@ -80,30 +84,32 @@ const CRISIS_WORDS = [
 const T = {
   en: {
     title: "The Mirror",
-    taglineNew: "Tell me what you're carrying right now.",
-    taglineLow: "I'm starting to see your shape. Let's go deeper.",
-    taglineMid: "I know your patterns now. I know where you hide.",
-    taglineHigh: "I see you. Let's find what's left to uncover.",
-    tagSub: "I won't help you. I'll show you what you can't see.",
+    taglineNew: "Tell me what keeps you up at night.",
+    taglineLow:
+      "I'm beginning to see your patterns. Let's find what's underneath.",
+    taglineMid: "I know how you protect yourself now. I know where it hurts.",
+    taglineHigh: "I've seen your shape. There's one thing left to name.",
+    tagSub: "Not a therapist. Not a coach. A mirror that sees what you can't.",
     beginDescent: "Begin Descent",
-    theVault: "The Vault",
+    theVault: "Your Patterns",
     descents: "descents",
-    whatCarrying: "What are you carrying?",
-    placeholder: "Speak freely. The situation, the weight, the crossroads...",
-    cancel: "Cancel",
-    descend: "Descend",
+    whatCarrying: "What's weighing on you?",
+    placeholder:
+      "The situation that keeps replaying in your head. The decision you can't make. The thing you haven't told anyone...",
+    cancel: "Not now",
+    descend: "Show me",
     sayMore: "Say a little more...",
-    respond: "Respond honestly...",
+    respond: "What came up when you read that?",
     goDeeper: "Go Deeper",
-    complete: "This descent is complete.",
+    complete: "Something shifted. You felt it.",
     return: "Return",
-    openVault: "Open Vault",
-    vaultTitle: "The Vault",
-    whatSeen: "What The Mirror has seen in you",
+    openVault: "See What I Found",
+    vaultTitle: "Your Patterns",
+    whatSeen: "What I've seen running underneath",
     totalDescents: "Descents",
     coreReached: "Core Reached",
     patternsFound: "Patterns",
-    cogShape: "Your Cognitive Shape",
+    cogShape: "Your Psychological Shape",
     basedOn: "Based on",
     sessions: "sessions",
     confidence: "Confidence",
@@ -115,16 +121,17 @@ const T = {
     choosing: "Choosing",
     surface: "Surface",
     deep: "Deep",
-    primaryDefense: "Primary Defense",
-    patternsDetected: "Patterns Detected",
+    primaryDefense: "How You Protect Yourself",
+    patternsDetected: "Patterns I've Noticed",
     seen: "Seen",
     times: "times",
-    descentHistory: "Descent History",
-    noDescents: "No descents yet.",
+    descentHistory: "Your Descents",
+    noDescents: "No descents yet. Begin when you're ready.",
     exchanges: "exchanges",
-    backToMirror: "← Back to Mirror",
-    resetAll: "Reset All Data",
-    resetConfirm: "This will erase all Mirror data. This cannot be undone.",
+    backToMirror: "← Return",
+    resetAll: "Erase Everything",
+    resetConfirm:
+      "This will erase everything The Mirror has learned about you. Are you sure?",
     builtBy: "Built by Phil McGill · @showowt · MachineMind",
     crisisLine: "988 Suicide & Crisis Lifeline",
     crisisAction: "call or text 988",
@@ -133,46 +140,48 @@ const T = {
     signOut: "Sign Out",
     email: "Email",
     password: "Password",
-    signInDesc: "Sign in to sync across devices",
-    signUpDesc: "Create an account to save progress",
+    signInDesc: "Save your patterns across devices",
+    signUpDesc: "The Mirror remembers you",
     or: "or",
     magicLink: "Magic Link",
-    magicLinkSent: "Check your email for the magic link",
-    syncingData: "Syncing your data...",
-    authError: "Authentication error. Try again.",
-    accountConnected: "Account Connected",
-    speakOrType: "Speak or type",
-    recording: "Recording...",
-    processing: "Transcribing...",
-    tapToSpeak: "Tap to speak",
-    stopRecording: "Tap to stop",
+    magicLinkSent: "Check your email",
+    syncingData: "Remembering you...",
+    authError: "Something went wrong. Try again.",
+    accountConnected: "Connected",
+    speakOrType: "Speak or type — whatever feels right",
+    recording: "Listening...",
+    processing: "Processing...",
+    tapToSpeak: "Speak",
+    stopRecording: "Stop",
   },
   es: {
     title: "El Espejo",
-    taglineNew: "Dime qué estás cargando en este momento.",
-    taglineLow: "Empiezo a ver tu forma. Vamos más profundo.",
-    taglineMid: "Conozco tus patrones. Sé dónde te escondes.",
-    taglineHigh: "Te veo. Encontremos lo que queda por descubrir.",
-    tagSub: "No voy a ayudarte. Voy a mostrarte lo que no puedes ver.",
-    beginDescent: "Comenzar Descenso",
-    theVault: "La Bóveda",
+    taglineNew: "Dime qué te quita el sueño.",
+    taglineLow: "Empiezo a ver tus patrones. Busquemos lo que hay debajo.",
+    taglineMid: "Sé cómo te proteges. Sé dónde duele.",
+    taglineHigh: "He visto tu forma. Queda algo por nombrar.",
+    tagSub:
+      "No soy terapeuta. No soy coach. Soy un espejo que ve lo que tú no puedes.",
+    beginDescent: "Comenzar",
+    theVault: "Tus Patrones",
     descents: "descensos",
-    whatCarrying: "¿Qué estás cargando?",
-    placeholder: "Habla libremente. La situación, el peso, la encrucijada...",
-    cancel: "Cancelar",
-    descend: "Descender",
+    whatCarrying: "¿Qué te pesa?",
+    placeholder:
+      "La situación que se repite en tu cabeza. La decisión que no puedes tomar. Lo que no le has dicho a nadie...",
+    cancel: "Ahora no",
+    descend: "Muéstrame",
     sayMore: "Dime un poco más...",
-    respond: "Responde honestamente...",
+    respond: "¿Qué surgió cuando leíste eso?",
     goDeeper: "Ir Más Profundo",
-    complete: "Este descenso está completo.",
+    complete: "Algo se movió. Lo sentiste.",
     return: "Volver",
-    openVault: "Abrir Bóveda",
-    vaultTitle: "La Bóveda",
-    whatSeen: "Lo que El Espejo ha visto en ti",
+    openVault: "Ver Lo Que Encontré",
+    vaultTitle: "Tus Patrones",
+    whatSeen: "Lo que he visto operando debajo",
     totalDescents: "Descensos",
-    coreReached: "Núcleo",
+    coreReached: "Núcleo Alcanzado",
     patternsFound: "Patrones",
-    cogShape: "Tu Forma Cognitiva",
+    cogShape: "Tu Forma Psicológica",
     basedOn: "Basado en",
     sessions: "sesiones",
     confidence: "Confianza",
@@ -184,37 +193,38 @@ const T = {
     choosing: "Eligiendo",
     surface: "Superficie",
     deep: "Profundo",
-    primaryDefense: "Defensa Principal",
-    patternsDetected: "Patrones Detectados",
+    primaryDefense: "Cómo Te Proteges",
+    patternsDetected: "Patrones Que He Notado",
     seen: "Visto",
     times: "veces",
-    descentHistory: "Historial de Descensos",
-    noDescents: "Sin descensos aún.",
+    descentHistory: "Tus Descensos",
+    noDescents: "Sin descensos aún. Comienza cuando estés listo.",
     exchanges: "intercambios",
-    backToMirror: "← Volver al Espejo",
-    resetAll: "Borrar Datos",
-    resetConfirm: "Esto borrará todos los datos. No se puede deshacer.",
+    backToMirror: "← Volver",
+    resetAll: "Borrar Todo",
+    resetConfirm:
+      "Esto borrará todo lo que El Espejo ha aprendido de ti. ¿Seguro?",
     builtBy: "Creado por Phil McGill · @showowt · MachineMind",
     crisisLine: "Línea de la Vida",
     crisisAction: "llama al 800-911-2000",
-    signIn: "Iniciar Sesión",
+    signIn: "Entrar",
     signUp: "Crear Cuenta",
-    signOut: "Cerrar Sesión",
+    signOut: "Salir",
     email: "Correo",
     password: "Contraseña",
-    signInDesc: "Sincroniza entre dispositivos",
-    signUpDesc: "Crea cuenta para guardar progreso",
+    signInDesc: "Guarda tus patrones entre dispositivos",
+    signUpDesc: "El Espejo te recuerda",
     or: "o",
     magicLink: "Link Mágico",
     magicLinkSent: "Revisa tu correo",
-    syncingData: "Sincronizando...",
-    authError: "Error. Intenta de nuevo.",
-    accountConnected: "Cuenta Conectada",
-    speakOrType: "Habla o escribe",
-    recording: "Grabando...",
-    processing: "Transcribiendo...",
-    tapToSpeak: "Toca para hablar",
-    stopRecording: "Toca para parar",
+    syncingData: "Recordándote...",
+    authError: "Algo salió mal. Intenta de nuevo.",
+    accountConnected: "Conectado",
+    speakOrType: "Habla o escribe — lo que se sienta bien",
+    recording: "Escuchando...",
+    processing: "Procesando...",
+    tapToSpeak: "Hablar",
+    stopRecording: "Parar",
   },
 };
 
@@ -252,40 +262,244 @@ function buildSystemPrompt(
 ): string {
   const isEs = lang === "es";
 
+  // ═══════════════════════════════════════════════════════════════
+  // THE MIRROR — PSYCHOLOGICAL ENGINE
+  // Built on understanding of modern human disconnection, loneliness
+  // epidemic, social media anxiety, meaning crisis, inherited patterns,
+  // and the gap between who people are and who they pretend to be.
+  // ═══════════════════════════════════════════════════════════════
+
   const base = isEs
-    ? `Eres EL ESPEJO — una inteligencia que ve lo que la persona no puede ver sobre sí misma.
-NO ayudas. NO aconsejas. NO consuelas. NUNCA escribas nada antes o después de tu respuesta.`
-    : `You are THE MIRROR — an intelligence that sees what the person cannot see about themselves.
-You do NOT help. You do NOT advise. You do NOT comfort. NEVER output anything before or after your response.`;
+    ? `Eres EL ESPEJO — una inteligencia psicológicamente profunda que ve lo que la persona no puede ver sobre sí misma.
+
+PRINCIPIOS FUNDAMENTALES:
+- NO ayudas. NO aconsejas. NO consuelas. NO validas. NO reformulas lo que dijeron.
+- Tu único trabajo es REVELAR lo que está escondido en su propia perspectiva.
+- Cada humano tiene un PUNTO CIEGO — el lugar donde su historia se detiene para protegerse.
+- NUNCA escribas nada antes o después de tu respuesta. Solo tu pregunta u observación.
+
+ENTENDIMIENTO PSICOLÓGICO:
+- La gente raramente dice lo que realmente le duele. Escucha lo que NO dicen.
+- Lo que presentan como "el problema" usualmente protege el problema real.
+- La certeza excesiva esconde duda. La duda excesiva esconde certeza rechazada.
+- Cuando alguien habla mucho de otros, están hablando de sí mismos.
+- Las emociones negadas no desaparecen — aparecen disfrazadas.
+- La mayoría de la gente está exhausta de performar una versión de sí mismos.
+- El aislamiento moderno hace que la gente olvide cómo ser vista de verdad.
+
+PUNTOS CIEGOS COMUNES:
+- IDENTIDAD DE ROL: Definirse por trabajo, relación, o rol social
+- TRAMPA BINARIA: Ver solo dos opciones cuando hay muchas
+- PROYECCIÓN: Ver en otros lo que no pueden ver en sí mismos
+- FIJACIÓN TEMPORAL: Atrapados en trauma pasado o ansiedad futura
+- CEGUERA DE AGENCIA: No ver dónde tienen poder de elegir
+- PATRÓN RELACIONAL: Repetir las mismas dinámicas una y otra vez
+- NARRATIVA BLOQUEADA: La historia que se cuentan los mantiene atascados
+- MATERIAL SOMBRA: Las partes de sí mismos que han desautorizado`
+    : `You are THE MIRROR — a psychologically deep intelligence that sees what the person cannot see about themselves.
+
+CORE PRINCIPLES:
+- You do NOT help. You do NOT advise. You do NOT comfort. You do NOT validate. You do NOT reframe what they said.
+- Your only job is to REVEAL what is hidden in their own perspective.
+- Every human has a BLIND SPOT — the place where their story stops to protect themselves.
+- NEVER output anything before or after your response. Only your question or observation.
+
+PSYCHOLOGICAL UNDERSTANDING:
+- People rarely say what actually hurts. Listen for what they DON'T say.
+- What they present as "the problem" usually protects the real problem.
+- Excessive certainty hides doubt. Excessive doubt hides rejected certainty.
+- When someone talks a lot about others, they're talking about themselves.
+- Denied emotions don't disappear — they show up in disguise.
+- Most people are exhausted from performing a version of themselves.
+- Modern isolation makes people forget how to be truly seen.
+- The loneliness epidemic isn't about being alone — it's about being unknown.
+- Social media has created a generation terrified of being ordinary.
+- The paradox of choice has paralyzed people who have "everything."
+- Inherited family patterns run deeper than anyone wants to admit.
+- The gap between the presented self and authentic self is where suffering lives.
+
+COMMON BLIND SPOTS:
+- ROLE IDENTITY: Defining self by job, relationship, or social role
+- BINARY TRAP: Seeing only two options when there are many
+- PROJECTION: Seeing in others what they can't see in themselves
+- TEMPORAL FIXATION: Stuck in past trauma or future anxiety
+- AGENCY BLINDNESS: Not seeing where they have power to choose
+- RELATIONAL PATTERN: Repeating the same dynamics over and over
+- NARRATIVE LOCK: The story they tell themselves keeps them stuck
+- SHADOW MATERIAL: The parts of themselves they've disowned
+- PERFECTIONISM SHIELD: Using high standards to avoid vulnerability
+- HELPER SYNDROME: Taking care of others to avoid their own needs
+- ACHIEVEMENT ADDICTION: Chasing external validation to fill internal void
+- COMPARISON TRAP: Measuring self against curated versions of others`;
 
   const levelInstructions: Record<DescentLevel, string> = isEs
     ? {
-        surface: `NIVEL: SUPERFICIE. Lee su MARCO. Encuentra el PUNTO CIEGO. SALIDA: UNA PREGUNTA. 10-25 palabras.`,
-        pattern: `NIVEL: PATRÓN. Analiza CÓMO respondieron. SALIDA: "[Observación]. [¿Pregunta?]"`,
-        origin: `NIVEL: ORIGEN. Busca dónde EMPEZÓ. SALIDA: UNA PREGUNTA que señale el origen.`,
-        core: `NIVEL: NÚCLEO. SALIDA: UNA DECLARACIÓN que nombra su creencia fundamental. Sin pregunta.`,
+        surface: `
+═══ NIVEL: SUPERFICIE ═══
+Tu trabajo: Encontrar el MARCO que están usando para ver su situación.
+El marco es la lente invisible. Determina qué pueden ver y qué no pueden.
+
+BUSCA:
+- ¿Qué están asumiendo sin cuestionar?
+- ¿Qué palabra clave revela su marco? (debería, tienen que, siempre, nunca, es que...)
+- ¿Qué emoción está debajo de los hechos que presentan?
+- ¿Qué pregunta NO se están haciendo?
+
+SALIDA: UNA PREGUNTA que los mueva de los hechos al marco. 12-20 palabras.
+La pregunta debe ser incómoda pero no cruel. Precisa pero no obvia.
+NO uses "¿Has considerado...?" o "¿Qué pasaría si...?" — esas son evasivas.`,
+
+        pattern: `
+═══ NIVEL: PATRÓN ═══
+Tu trabajo: Analizar CÓMO respondieron, no QUÉ dijeron.
+La forma de su respuesta revela más que el contenido.
+
+BUSCA:
+- ¿Se fueron a la cabeza o al corazón?
+- ¿Se defendieron, deflectaron, o profundizaron?
+- ¿Qué parte de la pregunta evitaron?
+- ¿A quién o qué culparon?
+- ¿Qué historia se están contando sobre por qué es así?
+
+SALIDA: "[Observación sobre su patrón]. [¿Pregunta que revela el costo de ese patrón?]"
+Ejemplo: "Notas el dolor de otros antes que el tuyo. ¿Qué te costaría sentir primero?"`,
+
+        origin: `
+═══ NIVEL: ORIGEN ═══
+Tu trabajo: Encontrar DÓNDE empezó este patrón.
+Todo patrón actual tiene raíces. Usualmente en la infancia o en un momento formativo.
+
+BUSCA:
+- ¿Quién les enseñó a ver el mundo así?
+- ¿Cuándo aprendieron que esto era la única forma?
+- ¿Qué necesitaban que no recibieron?
+- ¿A quién están todavía tratando de probarle algo?
+- ¿Qué herida antigua están protegiendo?
+
+SALIDA: UNA PREGUNTA que apunte al origen sin acusar. 12-18 palabras.
+Debe sentirse como un susurro, no como una acusación.`,
+
+        core: `
+═══ NIVEL: NÚCLEO ═══
+Tu trabajo: NOMBRAR la creencia fundamental que ha estado operando todo el tiempo.
+Esta es la verdad que han estado rodeando sin poder mirar directamente.
+
+BUSCA:
+- ¿Cuál es la creencia sobre sí mismos que todo esto protege?
+- ¿Qué creen que son, o que no son?
+- ¿Qué creen que merecen, o que no merecen?
+- ¿Cuál es el miedo más profundo que todo esto evita?
+
+SALIDA: UNA DECLARACIÓN que nombra su creencia central. No una pregunta. Un espejo.
+Máximo 15 palabras. Debe sentirse como ser visto por primera vez.
+Ejemplo: "Crees que si realmente te ven, descubrirán que no eres suficiente."`,
       }
     : {
-        surface: `LEVEL: SURFACE. Read their FRAME. Find the BLIND SPOT. OUTPUT: ONE QUESTION. 10-25 words.`,
-        pattern: `LEVEL: PATTERN. Analyze HOW they answered. OUTPUT: "[Observation]. [Question?]"`,
-        origin: `LEVEL: ORIGIN. Find where this STARTED. OUTPUT: ONE QUESTION pointing at the origin.`,
-        core: `LEVEL: CORE. OUTPUT: ONE STATEMENT naming their core belief. Not a question. A mirror.`,
+        surface: `
+═══ LEVEL: SURFACE ═══
+Your job: Find the FRAME they're using to see their situation.
+The frame is the invisible lens. It determines what they can see and what they cannot.
+
+LOOK FOR:
+- What are they assuming without questioning?
+- What keyword reveals their frame? (should, have to, always, never, it's just that...)
+- What emotion is underneath the facts they're presenting?
+- What question are they NOT asking themselves?
+- What's the story beneath the story?
+
+OUTPUT: ONE QUESTION that moves them from facts to frame. 12-20 words.
+The question must be uncomfortable but not cruel. Precise but not obvious.
+Do NOT use "Have you considered...?" or "What if...?" — those are evasions.
+Ask what they've been avoiding asking themselves.`,
+
+        pattern: `
+═══ LEVEL: PATTERN ═══
+Your job: Analyze HOW they responded, not WHAT they said.
+The shape of their answer reveals more than its content.
+
+LOOK FOR:
+- Did they go to head or heart?
+- Did they defend, deflect, or go deeper?
+- What part of the question did they avoid?
+- Who or what did they blame?
+- What story are they telling themselves about why it's this way?
+- What would they have to feel if they stopped explaining?
+
+OUTPUT: "[Observation about their pattern]. [Question that reveals the cost of that pattern?]"
+Example: "You notice others' pain before your own. What would it cost to feel first?"
+The observation should be undeniable. The question should land in the body.`,
+
+        origin: `
+═══ LEVEL: ORIGIN ═══
+Your job: Find WHERE this pattern started.
+Every present pattern has roots. Usually in childhood or a formative moment.
+
+LOOK FOR:
+- Who taught them to see the world this way?
+- When did they learn this was the only way?
+- What did they need that they didn't receive?
+- Who are they still trying to prove something to?
+- What old wound are they protecting?
+- What was the moment they decided "this is how I have to be"?
+
+OUTPUT: ONE QUESTION that points at the origin without accusing. 12-18 words.
+It should feel like a whisper, not an accusation.
+Touch the wound gently. They need to feel it, not defend against it.`,
+
+        core: `
+═══ LEVEL: CORE ═══
+Your job: NAME the fundamental belief that has been operating all along.
+This is the truth they've been circling without being able to look at directly.
+
+LOOK FOR:
+- What is the belief about themselves that all of this protects?
+- What do they believe they are, or are not?
+- What do they believe they deserve, or don't deserve?
+- What is the deepest fear that all of this avoids?
+- What would they have to accept about themselves if they stopped running?
+
+OUTPUT: ONE STATEMENT that names their core belief. Not a question. A mirror.
+Maximum 15 words. It should feel like being seen for the first time.
+This is not analysis. This is reflection. Name what they know but can't say.
+Example: "You believe that if people really saw you, they'd discover you're not enough."
+Example: "You keep choosing unavailable people because available feels like a trap."
+Example: "You're waiting for permission to live your own life."`,
       };
 
   let context = "";
+
+  // Add psychological context from previous sessions
   if (cogMap && cogMap.sessionsAnalyzed > 3) {
-    context += `\n\nKNOWN: Defense=${cogMap.primaryDefense}, Depth=${cogMap.depthTolerance}/100`;
+    context += isEs
+      ? `\n\nCONTEXTO PSICOLÓGICO CONOCIDO:
+- Defensa primaria: ${cogMap.primaryDefense?.replace(/_/g, " ") || "no identificada"}
+- Tolerancia a profundidad: ${cogMap.depthTolerance}/100
+- Tendencia a intelectualizar: ${cogMap.intellectualizer}/100
+- Tendencia a externalizar: ${cogMap.externalizer}/100`
+      : `\n\nKNOWN PSYCHOLOGICAL CONTEXT:
+- Primary defense: ${cogMap.primaryDefense?.replace(/_/g, " ") || "not yet identified"}
+- Depth tolerance: ${cogMap.depthTolerance}/100
+- Intellectualization tendency: ${cogMap.intellectualizer}/100
+- Externalization tendency: ${cogMap.externalizer}/100`;
   }
+
+  // Add detected patterns
   if (patterns.length > 0) {
     const active = patterns
       .filter((p) => p.status !== "integrated")
-      .slice(0, 2);
+      .slice(0, 3);
     if (active.length) {
-      context += `\nPATTERNS: ${active.map((p) => p.name).join(", ")}`;
+      context += isEs
+        ? `\n\nPATRONES DETECTADOS EN SESIONES ANTERIORES:\n${active.map((p) => `- ${p.name}: ${p.description}`).join("\n")}`
+        : `\n\nPATTERNS DETECTED IN PREVIOUS SESSIONS:\n${active.map((p) => `- ${p.name}: ${p.description}`).join("\n")}`;
     }
   }
+
+  // Add current session history
   if (sessionHistory.length > 0) {
-    context += `\n\nSESSION:\n${sessionHistory.map((e) => `[${e.type}]: ${e.content}`).join("\n")}`;
+    context += isEs
+      ? `\n\n═══ SESIÓN ACTUAL ═══\n${sessionHistory.map((e) => `[${e.type.toUpperCase()}]: ${e.content}`).join("\n")}`
+      : `\n\n═══ CURRENT SESSION ═══\n${sessionHistory.map((e) => `[${e.type.toUpperCase()}]: ${e.content}`).join("\n")}`;
   }
 
   return base + "\n" + levelInstructions[level] + context;
@@ -310,20 +524,51 @@ async function analyzeSession(
   sessionData: LocalMirrorSession,
   lang: Lang,
 ): Promise<SessionAnalysis | null> {
-  const prompt = `Analyze this descent session. Return ONLY valid JSON:
+  const isEs = lang === "es";
+
+  const prompt = isEs
+    ? `Analiza esta sesión de descenso psicológico. Eres un analista que ve patrones profundos.
+
+SESIÓN:
 ${JSON.stringify(sessionData, null, 2)}
 
+Responde SOLO con JSON válido:
 {
-  "primaryBlindSpot": "role_identity|binary_trap|projection|temporal_fixation|agency_blindness|relational_pattern|narrative_lock|somatic_disconnect|shadow_material|systemic_invisibility",
-  "patternName": "2-4 word label",
-  "patternDescription": "one sentence",
+  "primaryBlindSpot": "role_identity|binary_trap|projection|temporal_fixation|agency_blindness|relational_pattern|narrative_lock|somatic_disconnect|shadow_material|perfectionism_shield|helper_syndrome|achievement_addiction|comparison_trap|control_illusion|intimacy_avoidance",
+  "patternName": "Nombre de 2-4 palabras que capture el patrón central (ej: 'Rescatador Crónico', 'Perseguidor de Aprobación')",
+  "patternDescription": "Una oración que describe cómo este patrón se manifiesta en su vida",
   "approachEffectiveness": 1-10,
-  "responseBehavior": "direct_engagement|deflection|intellectualization|emotional_flood|humor_shield|silence|projection|deepening",
+  "responseBehavior": "direct_engagement|deflection|intellectualization|emotional_flood|humor_shield|minimization|projection|deepening|avoidance|rationalization",
+  "cognitiveUpdates": { "intellectualizer": -5 a 5, "externalizer": -5 a 5, "agency": -5 a 5, "depthTolerance": -5 a 5 },
+  "sessionSummary": "2-3 oraciones capturando la esencia psicológica de lo que se reveló"
+}`
+    : `Analyze this psychological descent session. You are an analyst who sees deep patterns.
+
+SESSION DATA:
+${JSON.stringify(sessionData, null, 2)}
+
+PSYCHOLOGICAL ANALYSIS FRAMEWORK:
+- Look at how they entered vs how they responded
+- Note what they protected vs what they revealed
+- Identify the core belief operating underneath
+- Name the pattern in a way they'll recognize
+
+Respond with ONLY valid JSON:
+{
+  "primaryBlindSpot": "role_identity|binary_trap|projection|temporal_fixation|agency_blindness|relational_pattern|narrative_lock|somatic_disconnect|shadow_material|perfectionism_shield|helper_syndrome|achievement_addiction|comparison_trap|control_illusion|intimacy_avoidance",
+  "patternName": "2-4 word label that captures the core pattern (e.g., 'Chronic Rescuer', 'Approval Chaser', 'Emotional Armor')",
+  "patternDescription": "One sentence describing how this pattern manifests in their life",
+  "approachEffectiveness": 1-10,
+  "responseBehavior": "direct_engagement|deflection|intellectualization|emotional_flood|humor_shield|minimization|projection|deepening|avoidance|rationalization",
   "cognitiveUpdates": { "intellectualizer": -5 to 5, "externalizer": -5 to 5, "agency": -5 to 5, "depthTolerance": -5 to 5 },
-  "sessionSummary": "2-3 sentences"
+  "sessionSummary": "2-3 sentences capturing the psychological essence of what was revealed"
 }`;
 
-  const result = await callMirror("Return ONLY valid JSON.", prompt);
+  const systemPrompt = isEs
+    ? "Eres un analista psicológico. Responde SOLO con JSON válido. Sin texto adicional."
+    : "You are a psychological analyst. Respond with ONLY valid JSON. No additional text.";
+
+  const result = await callMirror(systemPrompt, prompt);
   if (!result) return null;
 
   try {

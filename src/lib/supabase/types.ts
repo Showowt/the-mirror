@@ -20,7 +20,10 @@ export type ResponseBehavior =
   | "humor_shield"
   | "silence"
   | "projection"
-  | "deepening";
+  | "deepening"
+  | "minimization"
+  | "avoidance"
+  | "rationalization";
 
 export type PatternStatus =
   | "emerging"
@@ -47,7 +50,13 @@ export type BlindSpotCategory =
   | "narrative_lock"
   | "somatic_disconnect"
   | "shadow_material"
-  | "systemic_invisibility";
+  | "systemic_invisibility"
+  | "perfectionism_shield"
+  | "helper_syndrome"
+  | "achievement_addiction"
+  | "comparison_trap"
+  | "control_illusion"
+  | "intimacy_avoidance";
 
 export type EmergenceType =
   | "frame_break"
