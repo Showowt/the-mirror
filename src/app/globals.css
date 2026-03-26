@@ -77,6 +77,59 @@ body {
   color: var(--light-100);
 }
 
+/* ═══ ACCESSIBILITY UTILITIES ═══ */
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--light-90);
+  color: var(--void);
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 1000;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Reduced motion - respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .portal-ring,
+  .breath-circle,
+  .seeing-orb-ring,
+  .seeing-orb-core,
+  .cosmic-pulse {
+    animation: none !important;
+  }
+}
+
 /* ═══ KEYFRAMES — The Breath of the System ═══ */
 
 @keyframes cosmicPulse {
@@ -371,6 +424,12 @@ body {
   opacity: 1;
 }
 
+.btn-descend:focus-visible {
+  outline: 2px solid var(--core);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--core-glow);
+}
+
 .btn-vault {
   background: transparent;
   border: none;
@@ -389,6 +448,11 @@ body {
   color: var(--light-50);
 }
 
+.btn-vault:focus-visible {
+  outline: 2px solid var(--surface);
+  outline-offset: 2px;
+}
+
 .btn-ghost {
   background: transparent;
   border: none;
@@ -404,6 +468,11 @@ body {
 
 .btn-ghost:hover {
   color: var(--light-50);
+}
+
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--light-50);
+  outline-offset: 3px;
 }
 
 /* ═══ INPUT PHASE — The Offering ═══ */
@@ -450,12 +519,31 @@ body {
 }
 
 .mirror-textarea:focus {
-  outline: none;
+  outline: 2px solid var(--light-30);
+  outline-offset: -2px;
   border-color: var(--light-15);
   background: var(--void-surface);
   box-shadow:
     0 0 0 1px var(--light-04),
     0 20px 60px -20px rgba(0,0,0,0.5);
+}
+
+/* ═══ ACCESSIBILITY — Focus Visible Indicators ═══ */
+
+/* Universal focus indicator for all interactive elements */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--light-50);
+  outline-offset: 2px;
+}
+
+/* Override for textarea to keep custom styling */
+textarea:focus-visible {
+  outline: 2px solid var(--light-30);
+  outline-offset: -2px;
 }
 
 .input-footer {
@@ -495,6 +583,12 @@ body {
 .btn-submit:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.btn-submit:focus-visible {
+  outline: 2px solid var(--light-70);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--light-08);
 }
 
 /* ═══ PROCESSING — The Seeing ═══ */
@@ -1653,6 +1747,11 @@ body {
   color: var(--light-50);
 }
 
+.lang-toggle:focus-visible {
+  outline: 2px solid var(--light-50);
+  outline-offset: 2px;
+}
+
 /* ═══ NAV BAR ═══ */
 
 .mirror-nav {
@@ -1825,6 +1924,12 @@ body {
 
 .voice-btn.unsupported .voice-icon {
   color: var(--light-30);
+}
+
+.voice-btn:focus-visible {
+  outline: 2px solid var(--light-70);
+  outline-offset: 3px;
+  box-shadow: 0 0 20px var(--light-10);
 }
 
 .voice-btn-inner {

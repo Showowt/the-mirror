@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MirrorV3RequestSchema, validateRequest } from "@/lib/validation";
 
 // ═══════════════════════════════════════════════════════════════
 // THE MIRROR v3 — API ROUTE
 // Flexible endpoint for v3 component
+// Input validation with Zod for security
 // ═══════════════════════════════════════════════════════════════
 
 // Rate limiter
@@ -64,15 +66,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { system, content } = body;
-
-    if (!system || !content) {
+    // Parse and validate request body with Zod
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
       return NextResponse.json(
-        { error: "Missing system prompt or content." },
+        { error: "Invalid JSON in request body." },
         { status: 400 },
       );
     }
+
+    const validation = validateRequest(MirrorV3RequestSchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+
+    const { system, content } = validation.data;
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
