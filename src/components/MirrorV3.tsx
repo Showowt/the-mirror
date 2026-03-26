@@ -24,11 +24,11 @@ import {
   saveCognitiveMap as saveLocalCognitiveMap,
   createDefaultCognitiveMap,
   getCalibration as getLocalCalibration,
-  saveCalibration as saveLocalCalibration,
   clearAllData,
   migrateFromV2,
 } from "@/lib/supabase/storage";
 import { useAuth } from "@/lib/supabase/useAuth";
+import { useWhisperVoice } from "@/lib/useWhisperVoice";
 import * as db from "@/lib/supabase/db";
 
 // ═══════════════════════════════════════════════════════════════
@@ -72,22 +72,9 @@ const CRISIS_WORDS = [
   "suicidal",
   "want to die",
   "end my life",
-  "don't want to be alive",
-  "dont want to be alive",
-  "end it all",
-  "no reason to live",
-  "better off dead",
-  "self harm",
-  "self-harm",
-  "cutting myself",
-  "jump off",
-  "overdose",
-  "wanna die",
-  "not worth living",
   "matarme",
   "suicidarme",
   "quiero morir",
-  "no quiero vivir",
 ];
 
 const T = {
@@ -95,41 +82,40 @@ const T = {
     title: "The Mirror",
     taglineNew: "Tell me what you're carrying right now.",
     taglineLow: "I'm starting to see your shape. Let's go deeper.",
-    taglineMid: "I know your patterns now. I know where you hide. Sit down.",
+    taglineMid: "I know your patterns now. I know where you hide.",
     taglineHigh: "I see you. Let's find what's left to uncover.",
     tagSub: "I won't help you. I'll show you what you can't see.",
-    beginDescent: "Begin a descent",
+    beginDescent: "Begin Descent",
     theVault: "The Vault",
     descents: "descents",
     whatCarrying: "What are you carrying?",
-    placeholder:
-      "Speak freely. The situation, the weight, the crossroads, the thing you can't figure out...",
+    placeholder: "Speak freely. The situation, the weight, the crossroads...",
     cancel: "Cancel",
     descend: "Descend",
     sayMore: "Say a little more...",
     respond: "Respond honestly...",
-    goDeeper: "Go deeper",
+    goDeeper: "Go Deeper",
     complete: "This descent is complete.",
     return: "Return",
     openVault: "Open Vault",
     vaultTitle: "The Vault",
-    whatSeen: "What The Mirror has seen in you.",
+    whatSeen: "What The Mirror has seen in you",
     totalDescents: "Descents",
     coreReached: "Core Reached",
-    patternsFound: "Patterns Found",
+    patternsFound: "Patterns",
     cogShape: "Your Cognitive Shape",
     basedOn: "Based on",
     sessions: "sessions",
     confidence: "Confidence",
     heart: "Heart",
     head: "Head",
-    internal: "Looks inward",
-    external: "Blames outward",
-    actedUpon: "Acted upon",
+    internal: "Looks Inward",
+    external: "Blames Outward",
+    actedUpon: "Acted Upon",
     choosing: "Choosing",
     surface: "Surface",
     deep: "Deep",
-    primaryDefense: "Primary defense",
+    primaryDefense: "Primary Defense",
     patternsDetected: "Patterns Detected",
     seen: "Seen",
     times: "times",
@@ -139,66 +125,66 @@ const T = {
     backToMirror: "← Back to Mirror",
     resetAll: "Reset All Data",
     resetConfirm: "This will erase all Mirror data. This cannot be undone.",
-    legal: "Not a substitute for professional mental health support.",
     builtBy: "Built by Phil McGill · @showowt · MachineMind",
     crisisLine: "988 Suicide & Crisis Lifeline",
     crisisAction: "call or text 988",
-    crisisText: "Crisis Text Line",
-    crisisTextAction: "text HOME to 741741",
     signIn: "Sign In",
     signUp: "Create Account",
     signOut: "Sign Out",
     email: "Email",
     password: "Password",
-    signInDesc: "Sign in to sync your data across devices",
-    signUpDesc: "Create an account to save your progress",
+    signInDesc: "Sign in to sync across devices",
+    signUpDesc: "Create an account to save progress",
     or: "or",
-    magicLink: "Send Magic Link",
+    magicLink: "Magic Link",
     magicLinkSent: "Check your email for the magic link",
     syncingData: "Syncing your data...",
-    syncComplete: "Data synced successfully",
-    authError: "Authentication error. Please try again.",
-    accountConnected: "Account connected",
+    authError: "Authentication error. Try again.",
+    accountConnected: "Account Connected",
+    speakOrType: "Speak or type",
+    recording: "Recording...",
+    processing: "Transcribing...",
+    tapToSpeak: "Tap to speak",
+    stopRecording: "Tap to stop",
   },
   es: {
     title: "El Espejo",
     taglineNew: "Dime qué estás cargando en este momento.",
     taglineLow: "Empiezo a ver tu forma. Vamos más profundo.",
-    taglineMid: "Conozco tus patrones ahora. Sé dónde te escondes. Siéntate.",
+    taglineMid: "Conozco tus patrones. Sé dónde te escondes.",
     taglineHigh: "Te veo. Encontremos lo que queda por descubrir.",
     tagSub: "No voy a ayudarte. Voy a mostrarte lo que no puedes ver.",
-    beginDescent: "Comenzar un descenso",
+    beginDescent: "Comenzar Descenso",
     theVault: "La Bóveda",
     descents: "descensos",
     whatCarrying: "¿Qué estás cargando?",
-    placeholder:
-      "Habla libremente. La situación, el peso, la encrucijada, lo que no puedes resolver...",
+    placeholder: "Habla libremente. La situación, el peso, la encrucijada...",
     cancel: "Cancelar",
     descend: "Descender",
     sayMore: "Dime un poco más...",
     respond: "Responde honestamente...",
-    goDeeper: "Ir más profundo",
+    goDeeper: "Ir Más Profundo",
     complete: "Este descenso está completo.",
     return: "Volver",
     openVault: "Abrir Bóveda",
     vaultTitle: "La Bóveda",
-    whatSeen: "Lo que El Espejo ha visto en ti.",
+    whatSeen: "Lo que El Espejo ha visto en ti",
     totalDescents: "Descensos",
-    coreReached: "Núcleo Alcanzado",
-    patternsFound: "Patrones Encontrados",
+    coreReached: "Núcleo",
+    patternsFound: "Patrones",
     cogShape: "Tu Forma Cognitiva",
     basedOn: "Basado en",
     sessions: "sesiones",
     confidence: "Confianza",
     heart: "Corazón",
     head: "Cabeza",
-    internal: "Mira adentro",
-    external: "Culpa afuera",
-    actedUpon: "Actuado sobre",
+    internal: "Mira Adentro",
+    external: "Culpa Afuera",
+    actedUpon: "Actuado Sobre",
     choosing: "Eligiendo",
     surface: "Superficie",
     deep: "Profundo",
-    primaryDefense: "Defensa principal",
+    primaryDefense: "Defensa Principal",
     patternsDetected: "Patrones Detectados",
     seen: "Visto",
     times: "veces",
@@ -206,29 +192,29 @@ const T = {
     noDescents: "Sin descensos aún.",
     exchanges: "intercambios",
     backToMirror: "← Volver al Espejo",
-    resetAll: "Borrar Todos los Datos",
-    resetConfirm:
-      "Esto borrará todos los datos del Espejo. No se puede deshacer.",
-    legal: "No sustituye el apoyo profesional de salud mental.",
+    resetAll: "Borrar Datos",
+    resetConfirm: "Esto borrará todos los datos. No se puede deshacer.",
     builtBy: "Creado por Phil McGill · @showowt · MachineMind",
     crisisLine: "Línea de la Vida",
     crisisAction: "llama al 800-911-2000",
-    crisisText: "Línea de Crisis",
-    crisisTextAction: "envía un mensaje",
     signIn: "Iniciar Sesión",
     signUp: "Crear Cuenta",
     signOut: "Cerrar Sesión",
     email: "Correo",
     password: "Contraseña",
-    signInDesc: "Inicia sesión para sincronizar tus datos",
-    signUpDesc: "Crea una cuenta para guardar tu progreso",
+    signInDesc: "Sincroniza entre dispositivos",
+    signUpDesc: "Crea cuenta para guardar progreso",
     or: "o",
-    magicLink: "Enviar Link Mágico",
-    magicLinkSent: "Revisa tu correo para el link mágico",
-    syncingData: "Sincronizando tus datos...",
-    syncComplete: "Datos sincronizados",
-    authError: "Error de autenticación. Intenta de nuevo.",
-    accountConnected: "Cuenta conectada",
+    magicLink: "Link Mágico",
+    magicLinkSent: "Revisa tu correo",
+    syncingData: "Sincronizando...",
+    authError: "Error. Intenta de nuevo.",
+    accountConnected: "Cuenta Conectada",
+    speakOrType: "Habla o escribe",
+    recording: "Grabando...",
+    processing: "Transcribiendo...",
+    tapToSpeak: "Toca para hablar",
+    stopRecording: "Toca para parar",
   },
 };
 
@@ -268,116 +254,41 @@ function buildSystemPrompt(
 
   const base = isEs
     ? `Eres EL ESPEJO — una inteligencia que ve lo que la persona no puede ver sobre sí misma.
-
-NO ayudas. NO aconsejas. NO consuelas. NO reformulas ni validas.
-Devuelves UNA respuesta basada en el nivel de descenso actual.
-
-NUNCA escribas nada antes o después de tu respuesta. Sin preámbulo. Sin explicación.`
+NO ayudas. NO aconsejas. NO consuelas. NUNCA escribas nada antes o después de tu respuesta.`
     : `You are THE MIRROR — an intelligence that sees what the person cannot see about themselves.
-
-You do NOT help. You do NOT advise. You do NOT comfort. You do NOT reframe or validate.
-You return ONE response based on the current descent level.
-
-NEVER output anything before or after your response. No preamble. No explanation.`;
+You do NOT help. You do NOT advise. You do NOT comfort. NEVER output anything before or after your response.`;
 
   const levelInstructions: Record<DescentLevel, string> = isEs
     ? {
-        surface: `
-NIVEL: SUPERFICIE — Primer contacto.
-Lee su MARCO, no su contenido. ¿Qué suposiciones están haciendo sin saber?
-Encuentra el PUNTO CIEGO ESTRUCTURAL — qué es invisible desde donde están.
-SALIDA: UNA PREGUNTA. 10-25 palabras. Aterriza en el pecho, no en la cabeza. Termina con ?
-NUNCA: preguntas genéricas, consejos-como-preguntas, preguntas sí/no, múltiples preguntas.`,
-        pattern: `
-NIVEL: PATRÓN — Han respondido a tu primera pregunta.
-Analiza CÓMO respondieron, no QUÉ dijeron.
-¿Se comprometieron directamente o evadieron? ¿Qué rol se asignaron?
-SALIDA: UNA OBSERVACIÓN sobre su patrón, seguida de UNA PREGUNTA MÁS PROFUNDA.
-Formato: "[Observación]. [¿Pregunta?]"`,
-        origin: `
-NIVEL: ORIGEN — Yendo a la fuente.
-Buscas dónde EMPEZÓ este patrón. No la situación actual — la herida, creencia o momento original.
-SALIDA: UNA PREGUNTA que señale el origen. ¿Dónde empezó esto? ¿Cuándo aprendieron esto primero?`,
-        core: `
-NIVEL: NÚCLEO — El nivel más profundo.
-Todo ha sido despojado. Estás en la creencia fundamental sobre sí mismos que impulsa todo lo demás.
-SALIDA: UNA DECLARACIÓN que nombra lo que ves en su núcleo. No una pregunta. Un espejo.
-Esto debería ser lo que nunca han dicho en voz alta sobre sí mismos.`,
+        surface: `NIVEL: SUPERFICIE. Lee su MARCO. Encuentra el PUNTO CIEGO. SALIDA: UNA PREGUNTA. 10-25 palabras.`,
+        pattern: `NIVEL: PATRÓN. Analiza CÓMO respondieron. SALIDA: "[Observación]. [¿Pregunta?]"`,
+        origin: `NIVEL: ORIGEN. Busca dónde EMPEZÓ. SALIDA: UNA PREGUNTA que señale el origen.`,
+        core: `NIVEL: NÚCLEO. SALIDA: UNA DECLARACIÓN que nombra su creencia fundamental. Sin pregunta.`,
       }
     : {
-        surface: `
-LEVEL: SURFACE — First contact.
-Read their FRAME, not their content. What assumptions are they making without knowing?
-Find the STRUCTURAL BLIND SPOT — what's invisible from where they stand.
-OUTPUT: ONE QUESTION. 10-25 words. Lands in the chest not the head. Ends with ?
-NEVER: generic questions, advice-as-questions, yes/no questions, multiple questions.`,
-        pattern: `
-LEVEL: PATTERN — They've responded to your first question.
-Analyze HOW they answered, not WHAT they said.
-Did they engage directly or deflect? What role did they cast themselves in?
-OUTPUT: ONE OBSERVATION about their pattern, followed by ONE DEEPER QUESTION.
-Format: "[Observation]. [Question?]"
-The observation should be 1-2 sentences. The question goes deeper than the first.`,
-        origin: `
-LEVEL: ORIGIN — Going to the source.
-You're looking for where this pattern STARTED. Not the current situation — the original wound, belief, or moment that created the frame they're trapped in.
-OUTPUT: ONE QUESTION that points at the origin. Where did this start? When did they first learn this?
-This question should feel uncomfortable. It should reach backward in time.`,
-        core: `
-LEVEL: CORE — The deepest level.
-Everything has been stripped away. You're at the fundamental belief about themselves that drives everything above.
-OUTPUT: ONE STATEMENT that names what you see at their core. Not a question. A mirror.
-Format: A single sentence that names the deepest pattern. Then silence.
-This should be the thing they've never said out loud about themselves.`,
+        surface: `LEVEL: SURFACE. Read their FRAME. Find the BLIND SPOT. OUTPUT: ONE QUESTION. 10-25 words.`,
+        pattern: `LEVEL: PATTERN. Analyze HOW they answered. OUTPUT: "[Observation]. [Question?]"`,
+        origin: `LEVEL: ORIGIN. Find where this STARTED. OUTPUT: ONE QUESTION pointing at the origin.`,
+        core: `LEVEL: CORE. OUTPUT: ONE STATEMENT naming their core belief. Not a question. A mirror.`,
       };
 
   let context = "";
-
   if (cogMap && cogMap.sessionsAnalyzed > 3) {
-    context += isEs
-      ? `\n\nCONOCES A ESTA PERSONA. Basado en ${cogMap.sessionsAnalyzed} sesiones previas:
-- Defensa principal: ${cogMap.primaryDefense || "desconocida"}
-- Tolerancia a profundidad: ${cogMap.depthTolerance}/100
-- Puntuación de agencia: ${cogMap.agencyScore}/100
-- Tienden a: ${cogMap.tendencies?.join(", ") || "aún no mapeado"}`
-      : `\n\nYOU KNOW THIS PERSON. Based on ${cogMap.sessionsAnalyzed} prior sessions:
-- Primary defense: ${cogMap.primaryDefense || "unknown"}
-- Depth tolerance: ${cogMap.depthTolerance}/100 (higher = can handle more)
-- Agency score: ${cogMap.agencyScore}/100 (lower = sees self as acted-upon)
-- They tend to: ${cogMap.tendencies?.join(", ") || "not yet mapped"}`;
+    context += `\n\nKNOWN: Defense=${cogMap.primaryDefense}, Depth=${cogMap.depthTolerance}/100`;
   }
-
-  if (patterns && patterns.length > 0) {
+  if (patterns.length > 0) {
     const active = patterns
       .filter((p) => p.status !== "integrated")
-      .slice(0, 3);
-    if (active.length > 0) {
-      context += isEs
-        ? `\n\nPATRONES RECURRENTES DETECTADOS:
-${active.map((p) => `- "${p.name}": ${p.description} (visto ${p.occurrences}x)`).join("\n")}`
-        : `\n\nRECURRING PATTERNS YOU'VE DETECTED:
-${active.map((p) => `- "${p.name}": ${p.description} (seen ${p.occurrences}x)`).join("\n")}`;
+      .slice(0, 2);
+    if (active.length) {
+      context += `\nPATTERNS: ${active.map((p) => p.name).join(", ")}`;
     }
   }
-
-  if (calibration && Object.keys(calibration).length > 0) {
-    const best = Object.entries(calibration)
-      .filter(([, v]) => v.uses >= 2)
-      .sort(([, a], [, b]) => b.effectiveness - a.effectiveness)[0];
-    if (best) {
-      context += isEs
-        ? `\n\nCALIBRACIÓN: El enfoque "${best[0]}" ha sido más efectivo con esta persona (${best[1].effectiveness.toFixed(1)}/10 promedio).`
-        : `\n\nCALIBRATION: The "${best[0]}" approach has been most effective with this person (${best[1].effectiveness.toFixed(1)}/10 avg).`;
-    }
+  if (sessionHistory.length > 0) {
+    context += `\n\nSESSION:\n${sessionHistory.map((e) => `[${e.type}]: ${e.content}`).join("\n")}`;
   }
 
-  if (sessionHistory && sessionHistory.length > 0) {
-    context += isEs
-      ? `\n\nESTA SESIÓN HASTA AHORA:\n${sessionHistory.map((e) => `[${e.type}]: ${e.content}`).join("\n")}`
-      : `\n\nTHIS SESSION SO FAR:\n${sessionHistory.map((e) => `[${e.type}]: ${e.content}`).join("\n")}`;
-  }
-
-  return base + levelInstructions[level] + context;
+  return base + "\n" + levelInstructions[level] + context;
 }
 
 interface SessionAnalysis {
@@ -399,54 +310,20 @@ async function analyzeSession(
   sessionData: LocalMirrorSession,
   lang: Lang,
 ): Promise<SessionAnalysis | null> {
-  const isEs = lang === "es";
-  const prompt = isEs
-    ? `Eres un motor de análisis para El Espejo. Analiza esta sesión de descenso y devuelve SOLO JSON válido.
-
-DATOS DE SESIÓN:
+  const prompt = `Analyze this descent session. Return ONLY valid JSON:
 ${JSON.stringify(sessionData, null, 2)}
 
-Devuelve JSON con esta estructura exacta:
 {
-  "primaryBlindSpot": "uno de: role_identity, binary_trap, projection, temporal_fixation, agency_blindness, relational_pattern, narrative_lock, somatic_disconnect, shadow_material, systemic_invisibility",
-  "patternName": "etiqueta corta 2-4 palabras para el patrón central observado",
-  "patternDescription": "una oración describiendo el patrón recurrente",
+  "primaryBlindSpot": "role_identity|binary_trap|projection|temporal_fixation|agency_blindness|relational_pattern|narrative_lock|somatic_disconnect|shadow_material|systemic_invisibility",
+  "patternName": "2-4 word label",
+  "patternDescription": "one sentence",
   "approachEffectiveness": 1-10,
-  "responseBehavior": "uno de: direct_engagement, deflection, intellectualization, emotional_flood, humor_shield, silence, projection, deepening",
-  "cognitiveUpdates": {
-    "intellectualizer": -5 a 5,
-    "externalizer": -5 a 5,
-    "agency": -5 a 5,
-    "depthTolerance": -5 a 5
-  },
-  "sessionSummary": "resumen de 2-3 oraciones de lo que pasó en este descenso"
-}`
-    : `You are an analytical engine for The Mirror system. Analyze this descent session and return ONLY valid JSON.
-
-SESSION DATA:
-${JSON.stringify(sessionData, null, 2)}
-
-Return JSON with this exact structure:
-{
-  "primaryBlindSpot": "one of: role_identity, binary_trap, projection, temporal_fixation, agency_blindness, relational_pattern, narrative_lock, somatic_disconnect, shadow_material, systemic_invisibility",
-  "patternName": "short 2-4 word label for the core pattern observed",
-  "patternDescription": "one sentence describing the recurring pattern",
-  "approachEffectiveness": 1-10,
-  "responseBehavior": "one of: direct_engagement, deflection, intellectualization, emotional_flood, humor_shield, silence, projection, deepening",
-  "cognitiveUpdates": {
-    "intellectualizer": -5 to 5,
-    "externalizer": -5 to 5,
-    "agency": -5 to 5,
-    "depthTolerance": -5 to 5
-  },
-  "sessionSummary": "2-3 sentence summary of what happened in this descent"
+  "responseBehavior": "direct_engagement|deflection|intellectualization|emotional_flood|humor_shield|silence|projection|deepening",
+  "cognitiveUpdates": { "intellectualizer": -5 to 5, "externalizer": -5 to 5, "agency": -5 to 5, "depthTolerance": -5 to 5 },
+  "sessionSummary": "2-3 sentences"
 }`;
 
-  const result = await callMirror(
-    "You are a clinical analysis engine. Return ONLY valid JSON. No markdown. No explanation.",
-    prompt,
-  );
-
+  const result = await callMirror("Return ONLY valid JSON.", prompt);
   if (!result) return null;
 
   try {
@@ -456,48 +333,7 @@ Return JSON with this exact structure:
   }
 }
 
-// ── Crisis Bar ──
-function CrisisBar({ lang }: { lang: Lang }) {
-  const t = T[lang];
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#141414]/95 border-t border-[#333] px-5 py-3 text-center z-50 text-[13px] text-[#999] leading-relaxed">
-      {lang === "es" ? (
-        <>
-          Si estás en crisis:{" "}
-          <a
-            href="tel:800-911-2000"
-            className="text-[#6b7fd7] no-underline hover:underline"
-          >
-            {t.crisisLine}
-          </a>{" "}
-          ({t.crisisAction})
-        </>
-      ) : (
-        <>
-          If you&apos;re in crisis:{" "}
-          <a
-            href="tel:988"
-            className="text-[#6b7fd7] no-underline hover:underline"
-          >
-            {t.crisisLine}
-          </a>{" "}
-          ({t.crisisAction}) ·{" "}
-          <a
-            href="https://www.crisistextline.org"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[#6b7fd7] no-underline hover:underline"
-          >
-            {t.crisisText}
-          </a>{" "}
-          ({t.crisisTextAction})
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Auth Modal ──
+// ═══ AUTH MODAL ═══
 function AuthModal({
   lang,
   onClose,
@@ -543,63 +379,50 @@ function AuthModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
-      <div className="bg-[#111] border border-[#222] rounded-lg p-8 max-w-md w-full relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-[#666] hover:text-white text-xl"
-        >
+    <div className="auth-overlay fade-in">
+      <div className="auth-modal fade-in-up">
+        <button onClick={onClose} className="auth-close">
           ×
         </button>
 
-        <h2 className="font-[Playfair_Display] text-2xl text-white mb-2">
+        <h2 className="auth-title">
           {mode === "signup" ? t.signUp : t.signIn}
         </h2>
-        <p className="font-[Outfit] text-sm text-[#666] mb-6">
+        <p className="auth-subtitle">
           {mode === "signup" ? t.signUpDesc : t.signInDesc}
         </p>
 
         {magicLinkSent ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-4">✉️</div>
-            <p className="font-[Outfit] text-[#e0e0e0]">{t.magicLinkSent}</p>
+          <div className="auth-success">
+            <div className="auth-success-icon">✉️</div>
+            <p className="auth-success-text">{t.magicLinkSent}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.email}
-                className="w-full bg-[#0a0a0a] border border-[#333] rounded-md px-4 py-3 text-[#e0e0e0] font-[Outfit] text-sm focus:border-[#666] outline-none"
-                required
-              />
-            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t.email}
+              className="auth-input"
+              required
+            />
 
             {mode !== "magic" && (
-              <div className="mb-6">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t.password}
-                  className="w-full bg-[#0a0a0a] border border-[#333] rounded-md px-4 py-3 text-[#e0e0e0] font-[Outfit] text-sm focus:border-[#666] outline-none"
-                  required
-                  minLength={6}
-                />
-              </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t.password}
+                className="auth-input"
+                required
+                minLength={6}
+              />
             )}
 
-            {error && (
-              <p className="font-[Outfit] text-sm text-red-400 mb-4">{error}</p>
-            )}
+            {error && <p className="auth-error">{error}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#e0e0e0] text-[#0a0a0a] rounded-md py-3 font-[Outfit] text-sm font-medium hover:bg-white transition-colors disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="auth-submit">
               {loading
                 ? "..."
                 : mode === "magic"
@@ -612,56 +435,44 @@ function AuthModal({
         )}
 
         {!magicLinkSent && (
-          <div className="mt-6 text-center">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-[#333]" />
-              <span className="font-[Outfit] text-xs text-[#555]">{t.or}</span>
-              <div className="flex-1 h-px bg-[#333]" />
+          <>
+            <div className="auth-divider">
+              <span className="auth-divider-text">{t.or}</span>
             </div>
-
-            <div className="flex gap-2 justify-center">
+            <div className="auth-alt-actions">
               {mode !== "signin" && (
                 <button
-                  onClick={() => {
-                    setMode("signin");
-                    setError(null);
-                  }}
-                  className="font-[Outfit] text-xs text-[#666] hover:text-white transition-colors"
+                  onClick={() => setMode("signin")}
+                  className="auth-alt-btn"
                 >
                   {t.signIn}
                 </button>
               )}
               {mode !== "signup" && (
                 <button
-                  onClick={() => {
-                    setMode("signup");
-                    setError(null);
-                  }}
-                  className="font-[Outfit] text-xs text-[#666] hover:text-white transition-colors"
+                  onClick={() => setMode("signup")}
+                  className="auth-alt-btn"
                 >
                   {t.signUp}
                 </button>
               )}
               {mode !== "magic" && (
                 <button
-                  onClick={() => {
-                    setMode("magic");
-                    setError(null);
-                  }}
-                  className="font-[Outfit] text-xs text-[#666] hover:text-white transition-colors"
+                  onClick={() => setMode("magic")}
+                  className="auth-alt-btn"
                 >
                   {t.magicLink}
                 </button>
               )}
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
   );
 }
 
-// ── Vault View ──
+// ═══ VAULT VIEW ═══
 function VaultView({
   sessions,
   patterns,
@@ -688,235 +499,206 @@ function VaultView({
   const totalCore = sessions.filter((s) => s.deepestLevel === "core").length;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] px-5 py-10">
-      <div className="max-w-[700px] mx-auto">
-        <button
-          onClick={onBack}
-          className="bg-transparent border-none text-[#666] cursor-pointer text-sm mb-8 font-[Outfit] hover:text-white transition-colors"
-        >
+    <div className="vault-phase fade-in">
+      <div className="vault-header">
+        <button onClick={onBack} className="vault-back">
           {t.backToMirror}
         </button>
+        <h1 className="vault-title">{t.vaultTitle}</h1>
+        <p className="vault-subtitle">{t.whatSeen}</p>
+      </div>
 
-        <h1 className="font-[Playfair_Display] text-4xl font-light mb-2 tracking-tight">
-          {t.vaultTitle}
-        </h1>
-        <p className="font-[Outfit] text-sm text-[#666] mb-10">{t.whatSeen}</p>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
-          {[
-            { label: t.totalDescents, value: totalDescents },
-            { label: t.coreReached, value: totalCore },
-            { label: t.patternsFound, value: patterns.length },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="bg-[#111] border border-[#222] rounded-lg px-4 py-5 text-center"
-            >
-              <div className="font-[Playfair_Display] text-3xl text-white mb-1">
-                {s.value}
-              </div>
-              <div className="font-[Outfit] text-xs text-[#666] uppercase tracking-wider">
-                {s.label}
-              </div>
-            </div>
-          ))}
+      {/* Stats */}
+      <div className="vault-stats">
+        <div className="vault-stat">
+          <div className="vault-stat-value">{totalDescents}</div>
+          <div className="vault-stat-label">{t.totalDescents}</div>
         </div>
+        <div className="vault-stat">
+          <div className="vault-stat-value">{totalCore}</div>
+          <div className="vault-stat-label">{t.coreReached}</div>
+        </div>
+        <div className="vault-stat">
+          <div className="vault-stat-value">{patterns.length}</div>
+          <div className="vault-stat-label">{t.patternsFound}</div>
+        </div>
+      </div>
 
-        {/* Cognitive Map */}
-        {cogMap && cogMap.sessionsAnalyzed > 0 && (
-          <div className="mb-10">
-            <h2 className="font-[Playfair_Display] text-xl font-light mb-4">
-              {t.cogShape}
-            </h2>
-            <div className="bg-[#111] border border-[#222] rounded-lg p-6">
-              <p className="font-[Outfit] text-xs text-[#888] mb-4">
-                {t.basedOn} {cogMap.sessionsAnalyzed} {t.sessions} ·{" "}
-                {t.confidence}: {cogMap.confidence}%
-              </p>
-              {[
-                {
-                  value: cogMap.intellectualizer,
-                  left: t.heart,
-                  right: t.head,
-                },
-                {
-                  value: cogMap.externalizer,
-                  left: t.internal,
-                  right: t.external,
-                },
-                {
-                  value: cogMap.agencyScore,
-                  left: t.actedUpon,
-                  right: t.choosing,
-                },
-                {
-                  value: cogMap.depthTolerance,
-                  left: t.surface,
-                  right: t.deep,
-                },
-              ].map((dim, i) => (
-                <div key={i} className="mb-4">
-                  <div className="flex justify-between mb-1">
-                    <span className="font-[Outfit] text-[11px] text-[#666]">
-                      {dim.left}
-                    </span>
-                    <span className="font-[Outfit] text-[11px] text-[#666]">
-                      {dim.right}
-                    </span>
-                  </div>
-                  <div className="h-1 bg-[#222] rounded relative">
-                    <div
-                      className="absolute -top-1 w-3 h-3 rounded-full bg-[#6b7fd7] border-2 border-[#0a0a0a] -translate-x-1/2"
-                      style={{ left: `${dim.value}%` }}
-                    />
-                  </div>
+      {/* Cognitive Shape */}
+      {cogMap && cogMap.sessionsAnalyzed > 0 && (
+        <div className="vault-section">
+          <h2 className="vault-section-title">{t.cogShape}</h2>
+          <p
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--light-40)",
+              marginBottom: "24px",
+            }}
+          >
+            {t.basedOn} {cogMap.sessionsAnalyzed} {t.sessions} · {t.confidence}:{" "}
+            {cogMap.confidence}%
+          </p>
+          <div className="cognitive-grid">
+            {[
+              { value: cogMap.intellectualizer, left: t.heart, right: t.head },
+              {
+                value: cogMap.externalizer,
+                left: t.internal,
+                right: t.external,
+              },
+              {
+                value: cogMap.agencyScore,
+                left: t.actedUpon,
+                right: t.choosing,
+              },
+              { value: cogMap.depthTolerance, left: t.surface, right: t.deep },
+            ].map((dim, i) => (
+              <div key={i} className="cognitive-dimension">
+                <div className="cognitive-labels">
+                  <span className="cognitive-label">{dim.left}</span>
+                  <span className="cognitive-label">{dim.right}</span>
                 </div>
-              ))}
-              {cogMap.primaryDefense && (
-                <p className="font-[Outfit] text-sm text-[#999] mt-5 pt-4 border-t border-[#222]">
-                  {t.primaryDefense}:{" "}
-                  <span className="text-[#e0e0e0]">
-                    {cogMap.primaryDefense.replace(/_/g, " ")}
-                  </span>
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Patterns */}
-        {patterns.length > 0 && (
-          <div className="mb-10">
-            <h2 className="font-[Playfair_Display] text-xl font-light mb-4">
-              {t.patternsDetected}
-            </h2>
-            {patterns.map((p, i) => (
-              <div
-                key={i}
-                className="bg-[#111] border border-[#222] rounded-lg p-5 mb-3"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-[Playfair_Display] text-lg text-white">
-                    {p.name}
-                  </span>
-                  <span
-                    className={`font-[Outfit] text-[11px] px-3 py-1 rounded-xl uppercase tracking-wider ${
-                      p.status === "confirmed"
-                        ? "bg-[#6b7fd722] text-[#6b7fd7]"
-                        : "bg-[#ffffff0a] text-[#666]"
-                    }`}
-                  >
-                    {p.status}
-                  </span>
+                <div className="cognitive-track">
+                  <div
+                    className="cognitive-marker"
+                    style={{ left: `${dim.value}%` }}
+                  />
                 </div>
-                <p className="font-[Outfit] text-sm text-[#999] leading-relaxed m-0">
-                  {p.description}
-                </p>
-                <p className="font-[Outfit] text-xs text-[#555] mt-2 mb-0">
-                  {t.seen} {p.occurrences}x · {p.category?.replace(/_/g, " ")}
-                </p>
               </div>
             ))}
           </div>
-        )}
+          {cogMap.primaryDefense && (
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--light-50)",
+                marginTop: "24px",
+              }}
+            >
+              {t.primaryDefense}: {cogMap.primaryDefense.replace(/_/g, " ")}
+            </p>
+          )}
+        </div>
+      )}
 
-        {/* Session History */}
-        <div>
-          <h2 className="font-[Playfair_Display] text-xl font-light mb-4">
-            {t.descentHistory}
-          </h2>
-          {sessions.length === 0 ? (
-            <p className="font-[Outfit] text-sm text-[#555]">{t.noDescents}</p>
-          ) : (
-            sessions
-              .slice()
-              .reverse()
-              .map((s, i) => (
-                <div
-                  key={i}
-                  className="bg-[#111] border border-[#222] rounded-lg px-5 py-4 mb-2 flex justify-between items-center"
+      {/* Patterns */}
+      {patterns.length > 0 && (
+        <div className="vault-section">
+          <h2 className="vault-section-title">{t.patternsDetected}</h2>
+          {patterns.map((p, i) => (
+            <div key={i} className="pattern-card">
+              <div className="pattern-header">
+                <span className="pattern-name">{p.name}</span>
+                <span
+                  className={`pattern-status ${p.status === "confirmed" ? "confirmed" : ""}`}
                 >
-                  <div>
-                    <div className="font-[Outfit] text-sm text-[#e0e0e0] mb-1">
-                      {s.offering?.slice(0, 60)}
-                      {(s.offering?.length ?? 0) > 60 ? "..." : ""}
-                    </div>
-                    <div className="font-[Outfit] text-xs text-[#555]">
-                      {new Date(s.startedAt).toLocaleDateString(
-                        lang === "es" ? "es-CO" : "en-US",
-                      )}{" "}
-                      · {s.entries?.length || 0} {t.exchanges}
-                    </div>
+                  {p.status}
+                </span>
+              </div>
+              <p className="pattern-description">{p.description}</p>
+              <span className="pattern-meta">
+                {t.seen} {p.occurrences}× · {p.category?.replace(/_/g, " ")}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Session History */}
+      <div className="vault-section">
+        <h2 className="vault-section-title">{t.descentHistory}</h2>
+        {sessions.length === 0 ? (
+          <p style={{ color: "var(--light-30)", fontStyle: "italic" }}>
+            {t.noDescents}
+          </p>
+        ) : (
+          sessions
+            .slice()
+            .reverse()
+            .map((s, i) => (
+              <div key={i} className="session-item">
+                <div className="session-content">
+                  <div className="session-offering">
+                    {s.offering?.slice(0, 80)}
+                    {(s.offering?.length ?? 0) > 80 ? "..." : ""}
                   </div>
-                  <div
-                    className="font-[Outfit] text-[11px] px-3 py-1 rounded-xl uppercase tracking-wider"
-                    style={{
-                      backgroundColor:
-                        DESCENT_LEVELS[s.deepestLevel]?.color + "22",
-                      color: DESCENT_LEVELS[s.deepestLevel]?.color,
-                    }}
-                  >
-                    {lang === "es"
-                      ? DESCENT_LEVELS[s.deepestLevel]?.nameEs
-                      : DESCENT_LEVELS[s.deepestLevel]?.name}
+                  <div className="session-meta">
+                    {new Date(s.startedAt).toLocaleDateString(
+                      lang === "es" ? "es-CO" : "en-US",
+                    )}{" "}
+                    · {s.entries?.length || 0} {t.exchanges}
                   </div>
                 </div>
-              ))
-          )}
-        </div>
-
-        {/* Account Section */}
-        <div className="mb-10 pt-10 border-t border-[#222]">
-          {isAuthenticated ? (
-            <div className="bg-[#111] border border-[#222] rounded-lg p-5 flex justify-between items-center">
-              <div>
-                <p className="font-[Outfit] text-sm text-[#e0e0e0]">
-                  {t.accountConnected}
-                </p>
-                <p className="font-[Outfit] text-xs text-[#555]">{userEmail}</p>
+                <span className="session-level" data-level={s.deepestLevel}>
+                  {lang === "es"
+                    ? DESCENT_LEVELS[s.deepestLevel]?.nameEs
+                    : DESCENT_LEVELS[s.deepestLevel]?.name}
+                </span>
               </div>
-              <button
-                onClick={onSignOut}
-                className="bg-transparent border border-[#333] rounded-md text-[#666] cursor-pointer px-4 py-2 font-[Outfit] text-xs hover:border-[#666] hover:text-[#999] transition-colors"
-              >
-                {t.signOut}
-              </button>
-            </div>
-          ) : (
-            <div className="text-center">
-              <p className="font-[Outfit] text-sm text-[#666] mb-4">
-                {t.signInDesc}
-              </p>
-              <button
-                onClick={onSignIn}
-                className="bg-[#e0e0e0] border-none rounded-md text-[#0a0a0a] cursor-pointer px-8 py-3 font-[Outfit] text-sm font-medium hover:bg-white transition-colors"
-              >
-                {t.signIn}
-              </button>
-            </div>
-          )}
-        </div>
+            ))
+        )}
+      </div>
 
-        <div className="text-center mt-8 pb-10">
-          <button
-            onClick={() => {
-              if (confirm(t.resetConfirm)) {
-                clearAllData();
-                window.location.reload();
-              }
-            }}
-            className="bg-transparent border border-[#333] rounded-md text-[#555] cursor-pointer px-5 py-2 font-[Outfit] text-xs hover:border-[#666] hover:text-[#999] transition-colors"
-          >
-            {t.resetAll}
-          </button>
-        </div>
+      {/* Account */}
+      <div className="account-section">
+        {isAuthenticated ? (
+          <div className="account-card">
+            <div className="account-info">
+              <span className="account-status">{t.accountConnected}</span>
+              <span className="account-email">{userEmail}</span>
+            </div>
+            <button onClick={onSignOut} className="btn-ghost">
+              {t.signOut}
+            </button>
+          </div>
+        ) : (
+          <div className="sign-in-prompt">
+            <p className="sign-in-text">{t.signInDesc}</p>
+            <button onClick={onSignIn} className="btn-descend">
+              {t.signIn}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Reset */}
+      <div className="vault-reset">
+        <button
+          onClick={() => {
+            if (confirm(t.resetConfirm)) {
+              clearAllData();
+              window.location.reload();
+            }
+          }}
+          className="btn-danger"
+        >
+          {t.resetAll}
+        </button>
       </div>
     </div>
   );
 }
 
-// ── Main App ──
+// ═══ CRISIS BAR ═══
+function CrisisBar({ lang }: { lang: Lang }) {
+  const t = T[lang];
+  return (
+    <div className="crisis-bar">
+      <span className="crisis-text">
+        {lang === "es" ? "Si estás en crisis: " : "If you're in crisis: "}
+        <a
+          href={lang === "es" ? "tel:800-911-2000" : "tel:988"}
+          className="crisis-link"
+        >
+          {t.crisisLine}
+        </a>{" "}
+        ({t.crisisAction})
+      </span>
+    </div>
+  );
+}
+
+// ═══ MAIN COMPONENT ═══
 export default function TheMirrorV3() {
   const { user, loading: authLoading, isAuthenticated, signOut } = useAuth();
 
@@ -930,14 +712,12 @@ export default function TheMirrorV3() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
-  // Descent state
   const [currentLevel, setCurrentLevel] = useState<DescentLevel>("surface");
   const [sessionEntries, setSessionEntries] = useState<LocalMirrorEntry[]>([]);
   const [currentMirrorResponse, setCurrentMirrorResponse] = useState("");
   const [userResponse, setUserResponse] = useState("");
   const [descentPhase, setDescentPhase] = useState<DescentPhase>("showing");
 
-  // Persistent state
   const [sessions, setSessions] = useState<LocalMirrorSession[]>([]);
   const [patterns, setPatterns] = useState<LocalMirrorPattern[]>([]);
   const [cogMap, setCogMap] = useState<LocalCognitiveMap>(
@@ -946,29 +726,69 @@ export default function TheMirrorV3() {
   const [calibration, setCalibration] = useState<LocalCalibration>({});
 
   const taRef = useRef<HTMLTextAreaElement>(null);
-  const respRef = useRef<HTMLTextAreaElement>(null);
   const seeingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasSynced = useRef(false);
 
-  // Load persistent data
+  // Voice transcription (Whisper)
+  const {
+    isRecording,
+    isProcessing: isTranscribing,
+    isSupported: voiceSupported,
+    audioLevel,
+    toggle: toggleVoice,
+  } = useWhisperVoice({
+    onTranscript: (transcribedText, isFinal) => {
+      if (isFinal && transcribedText) {
+        // Append to existing text with proper spacing
+        setText((prev) => {
+          const separator = prev.trim() ? " " : "";
+          return prev.trim() + separator + transcribedText;
+        });
+      }
+    },
+    onError: (error) => {
+      console.error("[Voice] Error:", error);
+    },
+    silenceTimeout: 3000, // Auto-stop after 3s silence
+    maxDuration: 120000, // Max 2 minutes
+  });
+
+  // Voice for response input during descent
+  const {
+    isRecording: isRecordingResponse,
+    isProcessing: isTranscribingResponse,
+    isSupported: voiceSupportedResponse,
+    audioLevel: audioLevelResponse,
+    toggle: toggleVoiceResponse,
+  } = useWhisperVoice({
+    onTranscript: (transcribedText, isFinal) => {
+      if (isFinal && transcribedText) {
+        setUserResponse((prev) => {
+          const separator = prev.trim() ? " " : "";
+          return prev.trim() + separator + transcribedText;
+        });
+      }
+    },
+    onError: (error) => {
+      console.error("[Voice Response] Error:", error);
+    },
+    silenceTimeout: 3000,
+    maxDuration: 120000,
+  });
+
+  // Load data
   useEffect(() => {
     if (authLoading) return;
 
-    // Detect language
     const browserLang = navigator.language?.startsWith("es") ? "es" : "en";
     setLang(browserLang);
-
-    // Try migration first
     migrateFromV2();
 
     const loadData = async () => {
       if (isAuthenticated && user) {
-        // Authenticated user - load from Supabase
         try {
-          // Ensure profile exists
           await db.getOrCreateProfile(user.id, browserLang);
 
-          // Sync localStorage to Supabase on first auth
           if (!hasSynced.current) {
             hasSynced.current = true;
             const localSessions = getLocalSessions();
@@ -987,19 +807,16 @@ export default function TheMirrorV3() {
                 localPatterns,
                 localCogMap,
               );
-              // Clear local storage after sync
               clearAllData();
               setSyncing(false);
             }
           }
 
-          // Load from Supabase
           const dbSessions = await db.getSessions(user.id);
           const dbPatterns = await db.getPatterns(user.id);
           const dbCogMap = await db.getCognitiveMap(user.id);
           const dbCalibration = await db.getCalibration(user.id);
 
-          // Convert DB sessions to local format
           const localFormatSessions: LocalMirrorSession[] = dbSessions.map(
             (s: {
               id: string;
@@ -1022,7 +839,6 @@ export default function TheMirrorV3() {
             }),
           );
 
-          // Convert DB patterns to local format
           const localFormatPatterns: LocalMirrorPattern[] = dbPatterns.map(
             (p: {
               pattern_name: string;
@@ -1047,7 +863,6 @@ export default function TheMirrorV3() {
             }),
           );
 
-          // Convert DB cognitive map to local format
           const localFormatCogMap: LocalCognitiveMap = dbCogMap
             ? {
                 intellectualizer: dbCogMap.intellectualizer_score || 50,
@@ -1062,7 +877,6 @@ export default function TheMirrorV3() {
               }
             : createDefaultCognitiveMap();
 
-          // Convert calibration
           const localFormatCalibration: LocalCalibration = {};
           dbCalibration.forEach(
             (c: {
@@ -1085,19 +899,14 @@ export default function TheMirrorV3() {
           setCalibration(localFormatCalibration);
         } catch (err) {
           console.error("[Mirror] Error loading from Supabase:", err);
-          // Fall back to localStorage
           setSessions(getLocalSessions());
           setPatterns(getLocalPatterns());
           setCogMap(getLocalCognitiveMap());
           setCalibration(getLocalCalibration());
         }
       } else {
-        // Anonymous user - use localStorage
         const existingProfile = getProfile();
-        if (!existingProfile) {
-          saveProfile(createDefaultProfile());
-        }
-
+        if (!existingProfile) saveProfile(createDefaultProfile());
         setSessions(getLocalSessions());
         setPatterns(getLocalPatterns());
         setCogMap(getLocalCognitiveMap());
@@ -1137,22 +946,20 @@ export default function TheMirrorV3() {
     }, delay);
   }, []);
 
-  // Submit initial offering
+  // Submit offering
   const submitOffering = useCallback(async () => {
     if (text.trim().length < 10) return;
-
     const crisis = detectCrisis(text);
     setIsCrisis(crisis);
     transition("processing");
 
-    const history: LocalMirrorEntry[] = [];
     const sysPrompt = buildSystemPrompt(
       "surface",
       lang,
       cogMap,
       patterns,
       calibration,
-      history,
+      [],
     );
     const response = await callMirror(sysPrompt, text.trim());
 
@@ -1179,7 +986,7 @@ export default function TheMirrorV3() {
     transition("descent");
   }, [text, lang, cogMap, patterns, calibration, transition]);
 
-  // Submit response during descent
+  // Submit response
   const submitResponse = useCallback(async () => {
     if (userResponse.trim().length < 5) return;
 
@@ -1204,7 +1011,6 @@ export default function TheMirrorV3() {
     setUserResponse("");
 
     if (isLastLevel || currentLevel === "core") {
-      // Final level — save session and analyze
       const sessionData: LocalMirrorSession = {
         id: crypto.randomUUID(),
         startedAt: sessionEntries[0]?.timestamp || now,
@@ -1216,7 +1022,6 @@ export default function TheMirrorV3() {
         primaryBlindSpot: null,
       };
 
-      // Get final mirror response
       const sysPrompt = buildSystemPrompt(
         "core",
         lang,
@@ -1238,10 +1043,8 @@ export default function TheMirrorV3() {
         setSessionEntries([...newEntries]);
       }
 
-      // Analyze session
       const analysis = await analyzeSession(sessionData, lang);
 
-      // Update patterns
       if (analysis) {
         const updatedPatterns = [...patterns];
         const existing = updatedPatterns.find(
@@ -1264,7 +1067,6 @@ export default function TheMirrorV3() {
         }
         setPatterns(updatedPatterns);
 
-        // Save patterns to storage
         if (isAuthenticated && user) {
           await db.upsertPattern(
             user.id,
@@ -1277,7 +1079,6 @@ export default function TheMirrorV3() {
           saveLocalPatterns(updatedPatterns);
         }
 
-        // Update cognitive map
         if (analysis.cognitiveUpdates) {
           const updated = { ...cogMap };
           updated.intellectualizer = Math.max(
@@ -1320,7 +1121,6 @@ export default function TheMirrorV3() {
           );
           setCogMap(updated);
 
-          // Save cognitive map to storage
           if (isAuthenticated && user) {
             await db.updateCognitiveMap(user.id, {
               intellectualizer_score: updated.intellectualizer,
@@ -1340,11 +1140,9 @@ export default function TheMirrorV3() {
         sessionData.primaryBlindSpot = analysis.primaryBlindSpot;
       }
 
-      // Save session
       sessionData.entries = newEntries;
       sessionData.deepestLevel = currentLevel;
 
-      // Save to storage
       if (isAuthenticated && user) {
         const dbSession = await db.createSession(
           user.id,
@@ -1352,7 +1150,6 @@ export default function TheMirrorV3() {
           isCrisis,
         );
         if (dbSession) {
-          // Save entries
           for (let i = 0; i < newEntries.length; i++) {
             const entry = newEntries[i];
             await db.createEntry(
@@ -1369,7 +1166,6 @@ export default function TheMirrorV3() {
               entry.content,
             );
           }
-          // Update session with final data
           await db.updateSession(dbSession.id, {
             ended_at: now,
             deepest_level: currentLevel,
@@ -1383,10 +1179,7 @@ export default function TheMirrorV3() {
         saveLocalSessions([...sessions, sessionData]);
       }
 
-      const updatedSessions = [...sessions, sessionData];
-      setSessions(updatedSessions);
-
-      // Update profile
+      setSessions([...sessions, sessionData]);
       const profile = getProfile() || createDefaultProfile();
       profile.totalDescents += 1;
       profile.updatedAt = now;
@@ -1396,7 +1189,6 @@ export default function TheMirrorV3() {
       return;
     }
 
-    // Not at core yet — go deeper
     const nextEntries = [...newEntries];
     const sysPrompt = buildSystemPrompt(
       nextLevel,
@@ -1437,7 +1229,6 @@ export default function TheMirrorV3() {
 
   const t = T[lang];
 
-  // Get tagline based on session count
   const getTagline = () => {
     const count = sessions.length;
     if (count === 0) return t.taglineNew;
@@ -1449,21 +1240,41 @@ export default function TheMirrorV3() {
   // ── RENDER ──
 
   if (phase === "loading" || authLoading) {
-    return <div className="min-h-screen bg-[#0a0a0a]" />;
+    return (
+      <div className="mirror-root">
+        <div className="mirror-atmosphere" />
+        <div className="grain-overlay" />
+        <div className="vignette" />
+      </div>
+    );
   }
 
   if (syncing) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-2 border-[#222] border-t-[#666] rounded-full mx-auto mb-8 animate-spin" />
-        <p className="font-[Outfit] text-sm text-[#666]">{t.syncingData}</p>
+      <div className="mirror-root">
+        <div className="mirror-atmosphere" />
+        <div className="grain-overlay" />
+        <div className="vignette" />
+        <div className="mirror-content">
+          <div className="processing-phase">
+            <div className="seeing-orb">
+              <div className="seeing-orb-core" />
+              <div className="seeing-orb-ring" />
+              <div className="seeing-orb-ring" />
+            </div>
+            <p className="seeing-text">{t.syncingData}</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (phase === "vault") {
     return (
-      <>
+      <div className="mirror-root">
+        <div className="mirror-atmosphere" />
+        <div className="grain-overlay" />
+        <div className="vignette" />
         <VaultView
           sessions={sessions}
           patterns={patterns}
@@ -1475,7 +1286,6 @@ export default function TheMirrorV3() {
           onSignIn={() => setShowAuthModal(true)}
           onSignOut={async () => {
             await signOut();
-            // Reload to reset state
             window.location.reload();
           }}
         />
@@ -1483,295 +1293,430 @@ export default function TheMirrorV3() {
           <AuthModal
             lang={lang}
             onClose={() => setShowAuthModal(false)}
-            onAuthSuccess={() => {
-              setShowAuthModal(false);
-              // Data will reload via useEffect
-            }}
+            onAuthSuccess={() => setShowAuthModal(false)}
           />
         )}
-      </>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-5 py-10 relative">
-      {/* Language toggle */}
+    <div className="mirror-root">
+      <div className="mirror-atmosphere" />
+      <div className="grain-overlay" />
+      <div className="vignette" />
+
+      {/* Language Toggle */}
       <button
         onClick={() => setLang(lang === "en" ? "es" : "en")}
-        className="fixed top-4 right-4 bg-transparent border border-[#222] rounded-md text-[#555] cursor-pointer px-3 py-1.5 font-[Outfit] text-xs hover:border-[#444] hover:text-[#888] transition-colors z-50"
+        className="lang-toggle"
       >
         {lang === "en" ? "ES" : "EN"}
       </button>
 
       {/* Nav */}
-      <div className="fixed top-0 left-0 right-0 flex justify-between items-center px-6 py-4 z-40">
-        <span className="font-[Playfair_Display] text-base text-[#333] font-light">
-          {t.title}
-        </span>
-        <div className="flex gap-4 items-center">
+      <nav className="mirror-nav">
+        <span className="nav-brand">{t.title}</span>
+        <div className="nav-actions">
           {sessions.length > 0 && (
-            <span className="font-[Outfit] text-[11px] text-[#444]">
+            <span className="nav-stat">
               {sessions.length} {t.descents}
             </span>
           )}
-          <button
-            onClick={() => transition("vault")}
-            className="bg-transparent border border-[#222] rounded-md text-[#555] cursor-pointer px-4 py-1.5 font-[Outfit] text-xs tracking-wide hover:border-[#444] hover:text-[#888] transition-colors"
-          >
+          <button onClick={() => transition("vault")} className="btn-vault">
             {t.theVault}
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* LANDING */}
-      {phase === "landing" && (
-        <div
-          className="text-center max-w-[500px] transition-all duration-700 ease-out"
-          style={{
-            opacity: vis ? 1 : 0,
-            transform: vis ? "translateY(0)" : "translateY(20px)",
-          }}
-        >
-          <h1 className="font-[Playfair_Display] text-[clamp(36px,8vw,56px)] font-light text-[#e0e0e0] mb-5 tracking-tight leading-tight">
-            {t.title}
-          </h1>
+      <div
+        className="mirror-content"
+        style={{
+          opacity: vis ? 1 : 0,
+          transform: vis ? "translateY(0)" : "translateY(20px)",
+          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {/* LANDING */}
+        {phase === "landing" && (
+          <>
+            <div className="portal">
+              <div className="portal-ring" />
+              <div className="portal-ring" />
+              <div className="portal-ring" />
+              <div className="portal-center" />
+            </div>
 
-          <p className="font-[Outfit] text-[15px] text-[#666] leading-relaxed mb-10">
-            {getTagline()}
-            <br />
-            {t.tagSub}
-          </p>
+            <h1 className="mirror-title">{t.title}</h1>
+            <p className="mirror-subtitle">{getTagline()}</p>
+            <p className="mirror-whisper">{t.tagSub}</p>
 
-          <button
-            onClick={() => {
-              setText("");
-              setUserResponse("");
-              setSessionEntries([]);
-              setCurrentLevel("surface");
-              setCurrentMirrorResponse("");
-              setDescentPhase("showing");
-              setIsCrisis(false);
-              transition("input");
-              setTimeout(() => taRef.current?.focus(), 600);
-            }}
-            className="bg-transparent border border-[#333] rounded-md text-[#999] cursor-pointer px-9 py-3.5 font-[Outfit] text-sm tracking-wide transition-colors hover:border-[#666] hover:text-[#e0e0e0]"
-          >
-            {t.beginDescent}
-          </button>
-        </div>
-      )}
-
-      {/* INPUT */}
-      {phase === "input" && (
-        <div
-          className="w-full max-w-[600px] transition-all duration-700 ease-out"
-          style={{
-            opacity: vis ? 1 : 0,
-            transform: vis ? "translateY(0)" : "translateY(20px)",
-          }}
-        >
-          <p className="font-[Playfair_Display] text-xl font-light italic text-[#888] text-center mb-8">
-            {t.whatCarrying}
-          </p>
-          <textarea
-            ref={taRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={t.placeholder}
-            autoFocus
-            className="w-full min-h-[180px] bg-[#111] border border-[#222] rounded-lg text-[#e0e0e0] font-[Outfit] text-[15px] p-5 resize-y outline-none leading-relaxed box-border focus:border-[#444] transition-colors"
-          />
-          <div className="flex justify-between items-center mt-4">
             <button
               onClick={() => {
                 setText("");
-                transition("landing");
+                setUserResponse("");
+                setSessionEntries([]);
+                setCurrentLevel("surface");
+                setCurrentMirrorResponse("");
+                setDescentPhase("showing");
+                setIsCrisis(false);
+                transition("input");
+                setTimeout(() => taRef.current?.focus(), 600);
               }}
-              className="bg-transparent border-none text-[#555] cursor-pointer font-[Outfit] text-sm hover:text-[#888] transition-colors"
+              className="btn-descend"
             >
-              {t.cancel}
+              {t.beginDescent}
             </button>
-            <button
-              onClick={submitOffering}
-              disabled={text.trim().length < 10}
-              className={`border-none rounded-md px-8 py-3 font-[Outfit] text-sm font-medium transition-colors ${
-                text.trim().length >= 10
-                  ? "bg-[#e0e0e0] text-[#0a0a0a] cursor-pointer"
-                  : "bg-[#222] text-[#555] cursor-default"
-              }`}
-            >
-              {t.descend}
-            </button>
-          </div>
-          {text.length > 0 && text.trim().length < 10 && (
-            <p className="font-[Outfit] text-xs text-[#555] text-center mt-4">
-              {t.sayMore}
-            </p>
-          )}
-        </div>
-      )}
+          </>
+        )}
 
-      {/* PROCESSING */}
-      {phase === "processing" && (
-        <div
-          className="text-center transition-opacity duration-500"
-          style={{ opacity: vis ? 1 : 0 }}
-        >
-          <div className="w-10 h-10 border-2 border-[#222] border-t-[#666] rounded-full mx-auto mb-8 animate-spin" />
-          <p
-            className="font-[Playfair_Display] text-lg italic text-[#666] transition-opacity duration-300"
-            style={{ opacity: seeingFade ? 1 : 0 }}
-          >
-            {SEEING_MESSAGES[lang][seeingIdx]}
-          </p>
-        </div>
-      )}
+        {/* INPUT */}
+        {phase === "input" && (
+          <div className="input-phase">
+            <p className="prompt-text">{t.whatCarrying}</p>
 
-      {/* DESCENT */}
-      {phase === "descent" && (
-        <div
-          className="w-full max-w-[600px] transition-all duration-700 ease-out"
-          style={{
-            opacity: vis ? 1 : 0,
-            transform: vis ? "translateY(0)" : "translateY(20px)",
-          }}
-        >
-          {/* Level indicator */}
-          <div className="flex justify-center gap-2 mb-10">
-            {(Object.keys(DESCENT_LEVELS) as DescentLevel[]).map((key) => {
-              const levelInfo = DESCENT_LEVELS[key];
-              const levelKeys = Object.keys(DESCENT_LEVELS) as DescentLevel[];
-              const isActive =
-                levelKeys.indexOf(key) <= levelKeys.indexOf(currentLevel);
-              return (
-                <div key={key} className="text-center">
-                  <div
-                    className="w-8 h-[3px] rounded-sm transition-colors duration-500"
-                    style={{
-                      backgroundColor: isActive ? levelInfo.color : "#222",
-                    }}
-                  />
-                  <span
-                    className="font-[Outfit] text-[10px] uppercase tracking-wider mt-1.5 block"
-                    style={{
-                      color: key === currentLevel ? levelInfo.color : "#444",
-                    }}
-                  >
-                    {lang === "es" ? levelInfo.nameEs : levelInfo.name}
+            {/* Voice Recording Button */}
+            {voiceSupported && (
+              <div className="voice-section">
+                <button
+                  onClick={toggleVoice}
+                  className={`voice-btn ${isRecording ? "recording" : ""} ${isTranscribing ? "processing" : ""}`}
+                  disabled={isTranscribing}
+                >
+                  <div className="voice-btn-inner">
+                    {/* Audio level visualization rings */}
+                    {isRecording && (
+                      <>
+                        <div
+                          className="voice-ring"
+                          style={{
+                            transform: `scale(${1 + audioLevel / 50})`,
+                            opacity: 0.3,
+                          }}
+                        />
+                        <div
+                          className="voice-ring"
+                          style={{
+                            transform: `scale(${1 + audioLevel / 35})`,
+                            opacity: 0.2,
+                          }}
+                        />
+                      </>
+                    )}
+                    <div className="voice-icon">
+                      {isTranscribing ? (
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            strokeDasharray="60"
+                            strokeDashoffset="0"
+                          >
+                            <animate
+                              attributeName="stroke-dashoffset"
+                              values="0;-60"
+                              dur="1s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                        </svg>
+                      ) : (
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        >
+                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                          <line x1="12" y1="19" x2="12" y2="22" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className="voice-label">
+                    {isTranscribing
+                      ? t.processing
+                      : isRecording
+                        ? t.recording
+                        : t.tapToSpeak}
                   </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Mirror response */}
-          {descentPhase !== "processing" && (
-            <div className="bg-[#111] border border-[#222] rounded-lg p-7 mb-6 relative">
-              <div
-                className="absolute top-3 right-4 font-[Outfit] text-[10px] uppercase tracking-wider"
-                style={{ color: DESCENT_LEVELS[currentLevel]?.color }}
-              >
-                {lang === "es"
-                  ? DESCENT_LEVELS[currentLevel]?.nameEs
-                  : DESCENT_LEVELS[currentLevel]?.name}
-              </div>
-              <p className="font-[Playfair_Display] text-[22px] font-light italic text-[#e0e0e0] leading-relaxed m-0">
-                {currentMirrorResponse}
-              </p>
-            </div>
-          )}
-
-          {/* Processing deeper */}
-          {descentPhase === "processing" && (
-            <div className="text-center py-16">
-              <div
-                className="w-10 h-10 border-2 border-[#222] rounded-full mx-auto mb-5 animate-spin"
-                style={{
-                  borderTopColor: DESCENT_LEVELS[currentLevel]?.color || "#666",
-                }}
-              />
-              <p className="font-[Playfair_Display] text-base italic text-[#555]">
-                {lang === "es" ? "Yendo más profundo..." : "Going deeper..."}
-              </p>
-            </div>
-          )}
-
-          {/* Complete */}
-          {descentPhase === "complete" && (
-            <div className="text-center mt-10">
-              <p className="font-[Outfit] text-sm text-[#555] mb-6">
-                {t.complete}
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={() => {
-                    setSessionEntries([]);
-                    setCurrentLevel("surface");
-                    setCurrentMirrorResponse("");
-                    setText("");
-                    setDescentPhase("showing");
-                    transition("landing");
-                  }}
-                  className="bg-transparent border border-[#333] rounded-md text-[#999] cursor-pointer px-7 py-3 font-[Outfit] text-sm hover:border-[#666] hover:text-[#e0e0e0] transition-colors"
-                >
-                  {t.return}
                 </button>
-                <button
-                  onClick={() => transition("vault")}
-                  className="bg-[#e0e0e0] border-none rounded-md text-[#0a0a0a] cursor-pointer px-7 py-3 font-[Outfit] text-sm font-medium"
-                >
-                  {t.openVault}
-                </button>
+                <p className="voice-hint">{t.speakOrType}</p>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Response input */}
-          {descentPhase === "showing" && currentLevel !== "core" && (
-            <div>
+            <div className="input-container">
               <textarea
-                ref={respRef}
-                value={userResponse}
-                onChange={(e) => setUserResponse(e.target.value)}
-                placeholder={t.respond}
+                ref={taRef}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={t.placeholder}
                 autoFocus
-                className="w-full min-h-[120px] bg-[#111] border border-[#222] rounded-lg text-[#e0e0e0] font-[Outfit] text-[15px] p-4 resize-y outline-none leading-relaxed box-border focus:border-[#444] transition-colors"
+                className="mirror-textarea"
               />
-              <div className="flex justify-end mt-3">
-                <button
-                  onClick={submitResponse}
-                  disabled={userResponse.trim().length < 5}
-                  className={`border-none rounded-md px-7 py-3 font-[Outfit] text-sm font-medium transition-colors ${
-                    userResponse.trim().length >= 5
-                      ? "cursor-pointer text-white"
-                      : "cursor-default text-[#555]"
-                  }`}
-                  style={{
-                    backgroundColor:
-                      userResponse.trim().length >= 5
-                        ? DESCENT_LEVELS[currentLevel]?.color
-                        : "#222",
-                  }}
-                >
-                  {t.goDeeper}
-                </button>
-              </div>
             </div>
-          )}
-        </div>
-      )}
+            <div className="input-footer">
+              <button
+                onClick={() => transition("landing")}
+                className="btn-ghost"
+              >
+                {t.cancel}
+              </button>
+              <button
+                onClick={submitOffering}
+                disabled={
+                  text.trim().length < 10 || isRecording || isTranscribing
+                }
+                className="btn-submit"
+              >
+                {t.descend}
+              </button>
+            </div>
+            {text.length > 0 && text.trim().length < 10 && (
+              <p
+                className="char-indicator"
+                style={{ marginTop: "12px", textAlign: "center" }}
+              >
+                {t.sayMore}
+              </p>
+            )}
+          </div>
+        )}
 
-      {/* Crisis bar */}
+        {/* PROCESSING */}
+        {phase === "processing" && (
+          <div className="processing-phase">
+            <div className="seeing-orb">
+              <div className="seeing-orb-core" />
+              <div className="seeing-orb-ring" />
+              <div className="seeing-orb-ring" />
+              <div className="seeing-orb-ring" />
+            </div>
+            <p className="seeing-text" style={{ opacity: seeingFade ? 1 : 0 }}>
+              {SEEING_MESSAGES[lang][seeingIdx]}
+            </p>
+          </div>
+        )}
+
+        {/* DESCENT */}
+        {phase === "descent" && (
+          <div className="descent-phase">
+            {/* Level Indicator */}
+            <div className="level-indicator">
+              {(Object.keys(DESCENT_LEVELS) as DescentLevel[]).map((key) => {
+                const levelKeys = Object.keys(DESCENT_LEVELS) as DescentLevel[];
+                const isActive = key === currentLevel;
+                const isPassed =
+                  levelKeys.indexOf(key) < levelKeys.indexOf(currentLevel);
+                return (
+                  <div
+                    key={key}
+                    className={`level-node ${isActive ? "active" : ""} ${isPassed ? "passed" : ""}`}
+                    data-level={key}
+                  >
+                    <div className="level-dot" />
+                    <span className="level-label">
+                      {lang === "es"
+                        ? DESCENT_LEVELS[key].nameEs
+                        : DESCENT_LEVELS[key].name}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Mirror Response */}
+            {descentPhase !== "processing" && (
+              <div
+                className="mirror-question-card"
+                style={{ borderColor: `var(--${currentLevel})` }}
+              >
+                <span
+                  className="mirror-question-level"
+                  style={{ color: `var(--${currentLevel})` }}
+                >
+                  {lang === "es"
+                    ? DESCENT_LEVELS[currentLevel]?.nameEs
+                    : DESCENT_LEVELS[currentLevel]?.name}
+                </span>
+                <p className="mirror-question-text">{currentMirrorResponse}</p>
+              </div>
+            )}
+
+            {/* Processing Deeper */}
+            {descentPhase === "processing" && (
+              <div className="processing-phase" style={{ padding: "60px 0" }}>
+                <div className="seeing-orb">
+                  <div
+                    className="seeing-orb-core"
+                    style={{ background: `var(--${currentLevel})` }}
+                  />
+                  <div
+                    className="seeing-orb-ring"
+                    style={{ borderColor: `var(--${currentLevel})` }}
+                  />
+                  <div
+                    className="seeing-orb-ring"
+                    style={{ borderColor: `var(--${currentLevel})` }}
+                  />
+                </div>
+                <p className="seeing-text">
+                  {lang === "es" ? "Yendo más profundo..." : "Going deeper..."}
+                </p>
+              </div>
+            )}
+
+            {/* Complete */}
+            {descentPhase === "complete" && (
+              <div className="descent-complete">
+                <p className="complete-message">{t.complete}</p>
+                <div className="complete-actions">
+                  <button
+                    onClick={() => {
+                      setSessionEntries([]);
+                      setCurrentLevel("surface");
+                      setCurrentMirrorResponse("");
+                      setText("");
+                      setDescentPhase("showing");
+                      transition("landing");
+                    }}
+                    className="btn-ghost"
+                  >
+                    {t.return}
+                  </button>
+                  <button
+                    onClick={() => transition("vault")}
+                    className="btn-descend"
+                  >
+                    {t.openVault}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Response Input */}
+            {descentPhase === "showing" && currentLevel !== "core" && (
+              <div className="response-container">
+                {/* Voice button for response */}
+                {voiceSupportedResponse && (
+                  <div className="response-voice-section">
+                    <button
+                      onClick={toggleVoiceResponse}
+                      className={`voice-btn-sm ${isRecordingResponse ? "recording" : ""} ${isTranscribingResponse ? "processing" : ""}`}
+                      disabled={isTranscribingResponse}
+                    >
+                      <div className="voice-icon">
+                        {isTranscribingResponse ? (
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              strokeDasharray="60"
+                              strokeDashoffset="0"
+                            >
+                              <animate
+                                attributeName="stroke-dashoffset"
+                                values="0;-60"
+                                dur="1s"
+                                repeatCount="indefinite"
+                              />
+                            </circle>
+                          </svg>
+                        ) : (
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          >
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="22" />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                    <span
+                      className={`voice-status ${isRecordingResponse ? "recording" : ""} ${isTranscribingResponse ? "processing" : ""}`}
+                    >
+                      {isTranscribingResponse
+                        ? t.processing
+                        : isRecordingResponse
+                          ? t.recording
+                          : t.tapToSpeak}
+                    </span>
+                    {isRecordingResponse && (
+                      <div className="audio-bars">
+                        {[...Array(5)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="audio-bar"
+                            style={{
+                              height: `${Math.max(4, (audioLevelResponse / 100) * 20 * (0.5 + Math.random() * 0.5))}px`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <textarea
+                  value={userResponse}
+                  onChange={(e) => setUserResponse(e.target.value)}
+                  placeholder={t.respond}
+                  autoFocus
+                  className="response-textarea"
+                />
+                <div className="response-actions">
+                  <button
+                    onClick={submitResponse}
+                    disabled={
+                      userResponse.trim().length < 5 ||
+                      isRecordingResponse ||
+                      isTranscribingResponse
+                    }
+                    className="btn-deeper"
+                    data-level={currentLevel}
+                  >
+                    {t.goDeeper}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Crisis Bar */}
       {isCrisis && <CrisisBar lang={lang} />}
 
       {/* Footer */}
       <div
-        className="fixed left-0 right-0 text-center"
-        style={{ bottom: isCrisis ? "52px" : "16px" }}
+        className="mirror-footer"
+        style={{ bottom: isCrisis ? "60px" : "20px" }}
       >
-        <span className="font-[Outfit] text-[11px] text-[#333]">
-          {t.builtBy}
-        </span>
+        <span className="mirror-credit">{t.builtBy}</span>
       </div>
     </div>
   );
